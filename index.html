@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/jpg" href="assets/favicon.jpg">
+    <title>Laura Ledesna - Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;800&family=Inter:wght@600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'syne': ['Syne', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#ffffff',
+                        'inverse': '#cccccc',
+                        'paragraph': '#0d0d0d',
+                    },
+                    spacing: {
+                        'none': '0',
+                        'xxs': '4px',
+                        'xs': '8px',
+                        's': '16px',
+                        'm': '24px',
+                        'lg': '32px',
+                        'xl': '48px',
+                        '2xl': '64px',
+                        '3xl': '80px',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Theme Variables */
+        .light {
+            --surface-primary: #ffffff;
+            --surface-inverse: #cccccc;
+            --surface-secondary: #f2f2f2;
+            --surface-tertiary: #e6e6e6;
+            --typography-heading: #000000;
+            --typography-paragraph: #0d0d0d;
+            --stroke-border: #cccccc;
+            --media-icon: #000000;
+        }
+
+        .dark {
+            --surface-primary: #000000;
+            --surface-inverse: #333333;
+            --surface-secondary: #1a1a1a;
+            --surface-tertiary: #333333;
+            --typography-heading: #ffffff;
+            --typography-paragraph: #ffffff;
+            --stroke-border: #333333;
+            --media-icon: #ffffff;
+        }
+
+        /* Theme Transition */
+        * {
+            transition: background-color 0.5s ease, 
+                      color 0.5s ease,
+                      border-color 0.5s ease,
+                      filter 0.5s ease;
+        }
+
+        .theme-transition-active {
+            animation: themeTransition 0.5s ease forwards;
+        }
+
+        @keyframes themeTransition {
+            0% {
+                transform: scale(1);
+                filter: blur(0);
+            }
+            50% {
+                transform: scale(1.02);
+                filter: blur(4px);
+            }
+            100% {
+                transform: scale(1);
+                filter: blur(0);
+            }
+        }
+
+        /* Theme-aware styles */
+        .bg-theme-primary {
+            background-color: var(--surface-primary);
+        }
+
+        .bg-theme-inverse {
+            background-color: var(--surface-inverse);
+        }
+
+        .text-theme-heading {
+            color: var(--typography-heading);
+        }
+
+        .text-theme-paragraph {
+            color: var(--typography-paragraph);
+        }
+
+        .border-theme {
+            border-color: var(--stroke-border);
+        }
+
+        .icon-theme {
+            filter: brightness(0) saturate(100%);
+            color: var(--media-icon);
+        }
+
+        /* Dark mode icon inversion */
+        .dark .icon-theme {
+            filter: brightness(0) saturate(100%) invert(1);
+        }
+
+        /* Card States */
+        .case-study-card {
+            background-color: var(--surface-primary);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-color: var(--stroke-border);
+        }
+
+        .case-study-card:hover {
+            background-color: var(--surface-secondary);
+        }
+
+        .case-study-card:active {
+            background-color: var(--surface-tertiary);
+        }
+
+        /* Menu Item States */
+        .menu-item {
+            background-color: var(--surface-primary);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-color: var(--stroke-border);
+        }
+
+        .menu-item:hover {
+            background-color: var(--surface-secondary);
+        }
+
+        .menu-item:active {
+            background-color: var(--surface-tertiary);
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-text {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .theme-text::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            bottom: -4px;
+            left: 0;
+            background-color: var(--typography-heading);
+            transform: scaleX(0);
+            transition: transform 0.2s ease;
+        }
+        
+        .theme-text:hover::after {
+            transform: scaleX(1);
+        }
+        
+        .theme-text:active::after {
+            height: 4px;
+        }
+
+        /* Animation Keyframes and Base Class */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        /* Animation Delays */
+        .nav-animation {
+            animation-delay: 0.1s;
+        }
+
+        .tile-1 {
+            animation-delay: 0.4s;
+        }
+        .tile-2 {
+            animation-delay: 0.5s;
+        }
+        .tile-3 {
+            animation-delay: 0.6s;
+        }
+
+        .case-study-animation {
+            animation-delay: 0.8s;
+        }
+        .case-study-1 {
+            animation-delay: 0.9s;
+        }
+
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(100px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Update icon styles */
+        .sun-icon, .moon-icon {
+            font-size: 16px;
+        }
+        
+        .sun-icon {
+            display: block;
+        }
+        .moon-icon {
+            display: none;
+        }
+        
+        .dark .sun-icon {
+            display: none;
+        }
+        .dark .moon-icon {
+            display: block;
+        }
+
+        /* Tile Hover Styles */
+        .tile-paragraph {
+            opacity: 0;
+            max-height: 0;
+            transition: opacity 0.3s ease, max-height 0.3s ease;
+            overflow: hidden;
+        }
+
+        .tile:hover .tile-paragraph {
+            opacity: 1;
+            max-height: 200px;
+        }
+
+        /* Smooth Scroll Behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Button States */
+        .scroll-button {
+            cursor: default;
+        }
+        
+        .scroll-text {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .scroll-text::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            bottom: -4px;
+            left: 0;
+            background-color: var(--typography-heading);
+            transform: scaleX(0);
+            transition: transform 0.2s ease;
+        }
+        
+        .scroll-text:hover::after {
+            transform: scaleX(1);
+        }
+        
+        .scroll-text:active::after {
+            height: 4px;
+        }
+
+        /* Navigation Responsive Styles */
+        .mobile-menu {
+            display: none !important;
+        }
+
+        @media (max-width: 600px) {
+            .desktop-menu {
+                display: none !important;
+            }
+            .mobile-menu {
+                display: flex !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-theme-primary">
+    <div class="min-h-screen bg-theme-inverse p-[1px] flex flex-col gap-[1px] mx-auto" style="max-width: 1536px;">
+        <!-- Navigation -->
+        <!-- Desktop Navigation -->
+        <nav class="desktop-menu bg-theme-primary h-[82px] flex items-center justify-between pl-8 animate-slide-up nav-animation">
+            <div class="font-syne font-medium text-[16px] leading-[1.6] text-theme-heading">Laura Ledesna</div>
+            <div class="flex h-full">
+                <a href="mailto:iamlauraledesna@gmail.com" class="menu-item h-[82px] w-[167px] flex items-center px-4 border-l border-theme">
+                    <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Email</span>
+                </a>
+                <a href="assets/cv-laura-ledesna.pdf" download target="_blank" class="menu-item h-[82px] w-[167px] flex items-center px-4 border-l border-theme">
+                    <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Resume</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Mobile Navigation -->
+        <nav class="mobile-menu bg-theme-primary h-[82px] flex items-center justify-between pl-4 pr-0 animate-slide-up nav-animation">
+            <div class="font-syne font-medium text-[16px] leading-[1.6] text-theme-heading whitespace-pre">Laura Ledesna</div>
+            <div class="bg-theme-primary flex items-center justify-center size-[82px] relative shrink-0 border-l border-theme">
+                <div class="relative shrink-0 size-8">
+                    <div class="absolute inset-[12.5%]">
+                        <img src="assets/List.svg" alt="Menu" class="block max-w-none size-full icon-theme">
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="bg-theme-inverse flex flex-wrap gap-[1px] w-full">
+            <div class="tile bg-theme-primary flex flex-col justify-between basis-0 grow min-w-[350px] h-[400px] px-8 py-6 animate-slide-up tile-1">
+                <div class="font-inter font-semibold text-[64px] leading-[1.4] text-theme-heading">01</div>
+                <div class="flex flex-col gap-2">
+                    <div class="font-syne font-medium text-[48px] leading-[1.4] text-theme-heading">Fast</div>
+                    <div class="tile-paragraph font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.
+                    </div>
+                </div>
+            </div>
+            <div class="tile bg-theme-primary flex flex-col justify-between basis-0 grow min-w-[350px] h-[400px] px-8 py-6 animate-slide-up tile-2">
+                <div class="font-inter font-semibold text-[64px] leading-[1.4] text-theme-heading">02</div>
+                <div class="flex flex-col gap-2">
+                    <div class="font-syne font-medium text-[48px] leading-[1.4] text-theme-heading">Focused</div>
+                    <div class="tile-paragraph font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.
+                    </div>
+                </div>
+            </div>
+            <div class="tile bg-theme-primary flex flex-col justify-between basis-0 grow min-w-[350px] h-[400px] px-8 py-6 animate-slide-up tile-3">
+                <div class="font-inter font-semibold text-[64px] leading-[1.4] text-theme-heading">03</div>
+                <div class="flex flex-col gap-2">
+                    <div class="font-syne font-medium text-[48px] leading-[1.4] text-theme-heading">Clear</div>
+                    <div class="tile-paragraph font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Case Studies Section -->
+        <section id="case-studies" class="bg-theme-primary px-8 pt-16 pb-8 flex flex-col animate-slide-up case-study-animation">
+            <button onclick="document.getElementById('case-studies').scrollIntoView()" class="scroll-button flex flex-row gap-4 items-center justify-start max-w-[800px] bg-transparent border-0 p-0 mb-16">
+                <div class="scroll-text font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">Just Smart UX</div>
+                <div class="relative shrink-0 size-6">
+                    <div class="absolute inset-[12%]">
+                        <img src="assets/ArrowDown.svg" alt="Arrow Down" class="block max-w-none size-full icon-theme">
+                    </div>
+                </div>
+            </button>
+            <div class="flex flex-col space-y-6">
+                <!-- Case Study Card 1 -->
+                <div class="w-full max-w-[792px] scroll-animate" data-scroll>
+                    <a href="nestbank-case-study.html" class="block">
+                        <div class="case-study-card border border-theme p-2 flex gap-4 h-[299px] group">
+                            <div class="flex-1 relative">
+                                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('assets/nestbank-case-study/media-10.png')"></div>
+                                <video class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100" autoplay muted loop playsinline>
+                                    <source src="assets/nestbank-case-study/media-9.mp4" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="flex-1 flex flex-col justify-between">
+                                <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Fintech • Mobile App</div>
+                                <div class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">Nestbank: Inclusive Financial Access</div>
+                                <div class="flex justify-end">
+                                    <div class="relative shrink-0 size-8">
+                                        <div class="absolute inset-[15%]">
+                                            <img src="assets/ArrowDownRight.svg" alt="Arrow" class="block max-w-none size-full icon-theme">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Case Study Card 2 -->
+                <div class="w-full max-w-[792px] self-end scroll-animate" data-scroll>
+                    <a href="medigo-case-study.html" class="block">
+                        <div class="case-study-card border border-theme p-2 flex gap-4 h-[299px] group">
+                            <div class="flex-1 relative">
+                                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('assets/medigo-case-study/media-2.png')"></div>
+                                <video class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100" autoplay muted loop playsinline>
+                                    <source src="assets/medigo-case-study/media-1.mp4" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="flex-1 flex flex-col justify-between">
+                            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Healthcare • AI Solution • Mobile App</div>
+                            <div class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">How I convinced skeptical medical teams that AI could enhance, not replace human care</div>
+                            <div class="flex justify-end">
+                                <div class="relative shrink-0 size-8">
+                                    <div class="absolute inset-[15%]">
+                                        <img src="assets/ArrowDownRight.svg" alt="Arrow" class="block max-w-none size-full icon-theme">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-theme-primary px-8 py-6 flex items-center justify-between animate-slide-up" style="animation-delay: 1.2s;">
+            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">
+                Laura Ledesna • ©2025
+            </div>
+            <button type="button" class="theme-toggle flex items-center gap-2" aria-label="Toggle theme">
+                <span class="theme-text font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Toggle theme</span>
+                <i class="ph ph-sun sun-icon icon-theme"></i>
+                <i class="ph ph-moon moon-icon icon-theme"></i>
+            </button>
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="scroll-button flex items-center gap-2">
+                <span class="scroll-text font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Back to top</span>
+                <div class="relative shrink-0 size-4">
+                    <div class="absolute inset-[12.5%]">
+                        <img src="assets/ArrowUp.svg" alt="Arrow Up" class="block max-w-none size-full icon-theme">
+                    </div>
+                </div>
+            </button>
+        </footer>
+    </div>
+
+    <script>
+        // Theme management
+        function setTheme(theme) {
+            const html = document.documentElement;
+            const mainContent = document.querySelector('.min-h-screen');
+            
+            mainContent?.classList.add('theme-transition-active');
+            
+            html.classList.remove('light', 'dark');
+            html.classList.add(theme);
+            localStorage.setItem('theme', theme);
+            
+            setTimeout(() => {
+                mainContent?.classList.remove('theme-transition-active');
+            }, 500);
+        }
+
+        // Set initial theme based on stored preference or system preference
+        function setInitialTheme() {
+            const storedTheme = localStorage.getItem('theme');
+            if (storedTheme) {
+                setTheme(storedTheme);
+            } else {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                setTheme(prefersDark ? 'dark' : 'light');
+            }
+        }
+        
+        // Call immediately to avoid flash of wrong theme
+        setInitialTheme();
+
+        // Listen for system theme changes (only if no stored preference)
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                setTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+
+        // Theme Toggle Functionality
+        const themeToggle = document.querySelector('.theme-toggle');
+        
+        themeToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const html = document.documentElement;
+            const newTheme = html.classList.contains('light') ? 'dark' : 'light';
+            setTheme(newTheme);
+            
+            return false;
+        });
+
+        // Intersection Observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('[data-scroll]').forEach((element) => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html> 

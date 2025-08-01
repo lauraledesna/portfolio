@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/jpg" href="assets/favicon.jpg">
+    <title>Nestbank Case Study - Laura Ledesna</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'syne': ['Syne', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#ffffff',
+                        'inverse': '#cccccc',
+                        'paragraph': '#0d0d0d',
+                    },
+                    spacing: {
+                        'none': '0',
+                        'xxs': '4px',
+                        'xs': '8px',
+                        's': '16px',
+                        'm': '24px',
+                        'lg': '32px',
+                        'xl': '48px',
+                        '2xl': '64px',
+                        '3xl': '80px',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Include all the styles from index.html */
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Theme Variables */
+        .light {
+            --surface-primary: #ffffff;
+            --surface-inverse: #cccccc;
+            --surface-secondary: #f2f2f2;
+            --surface-tertiary: #e6e6e6;
+            --typography-heading: #000000;
+            --typography-paragraph: #0d0d0d;
+            --stroke-border: #cccccc;
+            --media-icon: #000000;
+        }
+
+        .dark {
+            --surface-primary: #000000;
+            --surface-inverse: #333333;
+            --surface-secondary: #1a1a1a;
+            --surface-tertiary: #333333;
+            --typography-heading: #ffffff;
+            --typography-paragraph: #ffffff;
+            --stroke-border: #333333;
+            --media-icon: #ffffff;
+        }
+
+        /* Theme Transition */
+        * {
+            transition: background-color 0.5s ease, 
+                      color 0.5s ease,
+                      border-color 0.5s ease,
+                      filter 0.5s ease;
+        }
+
+        .theme-transition-active {
+            animation: themeTransition 0.5s ease forwards;
+        }
+
+        @keyframes themeTransition {
+            0% {
+                transform: scale(1);
+                filter: blur(0);
+            }
+            50% {
+                transform: scale(1.02);
+                filter: blur(4px);
+            }
+            100% {
+                transform: scale(1);
+                filter: blur(0);
+            }
+        }
+
+        /* Theme-aware styles */
+        .bg-theme-primary {
+            background-color: var(--surface-primary);
+        }
+
+        .bg-theme-inverse {
+            background-color: var(--surface-inverse);
+        }
+
+        .text-theme-heading {
+            color: var(--typography-heading);
+        }
+
+        .text-theme-paragraph {
+            color: var(--typography-paragraph);
+        }
+
+        .border-theme {
+            border-color: var(--stroke-border);
+        }
+
+        .icon-theme {
+            filter: brightness(0) saturate(100%);
+            color: var(--media-icon);
+        }
+
+        /* Dark mode icon inversion */
+        .dark .icon-theme {
+            filter: brightness(0) saturate(100%) invert(1);
+        }
+
+        /* Menu Item States */
+        .menu-item {
+            background-color: var(--surface-primary);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-color: var(--stroke-border);
+        }
+
+        .menu-item:hover {
+            background-color: var(--surface-secondary);
+        }
+
+        .menu-item:active {
+            background-color: var(--surface-tertiary);
+        }
+
+        /* Navigation Responsive Styles */
+        .mobile-menu {
+            display: none !important;
+        }
+
+        @media (max-width: 600px) {
+            .desktop-menu {
+                display: none !important;
+            }
+            .mobile-menu {
+                display: flex !important;
+            }
+        }
+
+        /* Case Study Specific Styles */
+        .case-study-hero {
+            width: 100%;
+            height: 865px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .case-study-content {
+            width: 100%;
+            padding: 32px;
+        }
+
+        /* Button States */
+        .scroll-button {
+            cursor: default;
+        }
+        
+        .scroll-text {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .scroll-text::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            bottom: -4px;
+            left: 0;
+            background-color: var(--typography-heading);
+            transform: scaleX(0);
+            transition: transform 0.2s ease;
+        }
+        
+        .scroll-text:hover::after {
+            transform: scaleX(1);
+        }
+        
+        .scroll-text:active::after {
+            height: 4px;
+        }
+
+        /* Slide Up Animation */
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Update icon styles */
+        .sun-icon, .moon-icon {
+            font-size: 16px;
+        }
+        
+        .sun-icon {
+            display: block;
+        }
+        .moon-icon {
+            display: none;
+        }
+        
+        .dark .sun-icon {
+            display: none;
+        }
+        .dark .moon-icon {
+            display: block;
+        }
+
+        .theme-text {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .theme-text::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            bottom: -4px;
+            left: 0;
+            background-color: var(--typography-heading);
+            transform: scaleX(0);
+            transition: transform 0.2s ease;
+        }
+        
+        .theme-text:hover::after {
+            transform: scaleX(1);
+        }
+        
+        .theme-text:active::after {
+            height: 4px;
+        }
+    </style>
+</head>
+<body class="bg-theme-primary">
+    <div class="min-h-screen bg-theme-inverse p-[1px] flex flex-col gap-[1px] mx-auto" style="max-width: 1536px;">
+        <!-- Navigation -->
+        <nav class="desktop-menu bg-theme-primary h-[82px] flex items-center justify-between pl-8 animate-slide-up nav-animation">
+            <a href="index.html" class="font-syne font-medium text-[16px] leading-[1.6] text-theme-heading hover:opacity-80 transition-opacity">Laura Ledesna</a>
+            <div class="flex h-full">
+                <a href="mailto:iamlauraledesna@gmail.com" class="menu-item h-[82px] w-[167px] flex items-center px-4 border-l border-theme">
+                    <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Email</span>
+                </a>
+                <a href="assets/cv-laura-ledesna.pdf" download target="_blank" class="menu-item h-[82px] w-[167px] flex items-center px-4 border-l border-theme">
+<span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Resume</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Mobile Navigation -->
+        <nav class="mobile-menu bg-theme-primary h-[82px] flex items-center justify-between pl-4 pr-0 animate-slide-up nav-animation">
+            <a href="index.html" class="font-syne font-medium text-[16px] leading-[1.6] text-theme-heading whitespace-pre hover:opacity-80 transition-opacity">Laura Ledesna</a>
+            <div class="bg-theme-primary flex items-center justify-center size-[82px] relative shrink-0 border-l border-theme">
+                <div class="relative shrink-0 size-8">
+                    <div class="absolute inset-[12.5%]">
+                        <img src="assets/List.svg" alt="Menu" class="block max-w-none size-full icon-theme">
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Case Study Content -->
+        <div class="bg-theme-primary case-study-content animate-slide-up" style="animation-delay: 0.2s;">
+            <video class="case-study-hero w-full h-full object-cover" autoplay muted loop playsinline>
+                <source src="assets/nestbank-case-study/media-1.mp4" type="video/mp4">
+            </video>
+            <div class="w-full mx-auto">
+                <div class="flex flex-row gap-6 mt-8 animate-slide-up" style="animation-delay: 0.4s;">
+                    <div class="basis-0 grow">
+                        <h1 class="font-syne font-medium text-[32px] leading-[1.4] text-theme-heading">
+                            How I Simplified Financial Access for an Excluded Community Through Strategic Design Leadership
+                        </h1>
+                    </div>
+                    <div class="basis-0 grow">
+                        <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                            As a Latina UX Designer, I led the year-long design of a microlending app for women historically excluded from mainstream financial systems in the U.S. Through bilingual interviews, co-creation workshops, and field visits to branches across different states. I uncovered key barriers and designed a tool tailored to their everyday needs empowering them to manage their finances and driving meaningful impact for the organization.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="bg-theme-primary px-8 py-6 animate-slide-up border-b border-theme" style="animation-delay: 0.6s;">
+            <div class="w-full mx-auto flex flex-row gap-6">
+                <div class="basis-0 grow">
+                    <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Timeline</p>
+                </div>
+                <div class="basis-0 grow">
+                    <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">August 2022 - July 2023</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role -->
+        <div class="bg-theme-primary px-8 py-6 animate-slide-up" style="animation-delay: 0.7s;">
+            <div class="w-full mx-auto flex flex-row gap-6">
+                <div class="basis-0 grow">
+                    <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Role</p>
+                </div>
+                <div class="basis-0 grow">
+                    <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">UX Consultant</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Method -->
+        <div class="bg-theme-primary px-8 py-6 animate-slide-up border-b border-theme" style="animation-delay: 0.8s;">
+            <div class="w-full mx-auto flex flex-row gap-6">
+                <div class="basis-0 grow">
+                    <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Method</p>
+                </div>
+                <div class="basis-0 grow">
+                    <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Journey mapping + A/B testing + change management</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team -->
+        <div class="bg-theme-primary px-8 py-6 animate-slide-up border-b border-theme" style="animation-delay: 0.9s;">
+            <div class="w-full mx-auto flex flex-row gap-6">
+                <div class="basis-0 grow">
+                    <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Team</p>
+                </div>
+                <div class="basis-0 grow">
+                    <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">32 members across design, development, QA, project management, and client teams</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Block with Image -->
+        <div class="bg-theme-primary px-8 py-8 scroll-animate" data-scroll>
+            <div class="w-full mx-auto flex flex-row gap-8 h-[725px]">
+                <!-- Text Content -->
+                <div class="basis-0 grow flex flex-col justify-flex-start">
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Business Problem</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Members spent excessive time on basic queries while struggling to manage scattered loan information independently. <br> Rather than focusing on scaling human resources, we uncovered a fragmented information architecture that limited member self-service. Addressing it required designing with a level of cultural sensitivity well beyond what’s expected in typical financial apps.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Image -->
+                <div class="basis-0 grow bg-cover bg-center" style="background-image: url('assets/nestbank-case-study/media-2.jpg')"></div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+            <div class="w-full mx-auto flex flex-wrap gap-6">
+                <!-- Statistic Card 1 -->
+                <div class="basis-0 grow min-w-[300px] bg-theme-primary p-6 border border-theme">
+                    <div class="font-inter font-semibold text-[64px] leading-[1.4] text-theme-heading mb-6">
+                        21%
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <h3 class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">
+                            Retention Growth
+                        </h3>
+                        <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                            Raise retention and grow organizational reach by 21%. Three points above last year.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Statistic Card 2 -->
+                <div class="basis-0 grow min-w-[300px] bg-theme-primary p-6 border border-theme">
+                    <div class="font-inter font-semibold text-[64px] leading-[1.4] text-theme-heading mb-6">
+                        30%
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <h3 class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">
+                            Productivity Improvement
+                        </h3>
+                        <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                            Increase employee productivity by 30% within the first year of app launch.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Statistic Card 3 -->
+                <div class="basis-0 grow min-w-[300px] bg-theme-primary p-6 border border-theme">
+                    <div class="font-inter font-semibold text-[64px] leading-[1.4] text-theme-heading mb-6">
+                        ↑
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <h3 class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">
+                            Change Adoption Boost
+                        </h3>
+                        <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                            Reduce change impact and boost adoption of new management processes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Block with Multiple Text Sections -->
+        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+            <div class="w-full mx-auto flex flex-row gap-8">
+                <!-- Text Content -->
+                <div class="basis-0 grow flex flex-col gap-8">
+
+                    <!-- Text Block 1 -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Mar</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                                Complex financial data overwhelmed users → I centralized scattered information into intuitive dashboard design</p>
+                        </div>
+                    </div>
+
+                    <!-- Text Block 2 -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">May</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                                PSD2 compliance threatened user experience → I designed friendly onboarding that met security requirements without intimidation</p>
+                        </div>
+                    </div>
+
+                    <!-- Text Block 3 -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Aug</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                                Stakeholders expected simple microlending app → I designed comprehensive user research to understand excluded community needs.</p>
+                        </div>
+                    </div>
+
+                    <!-- Text Block 4 -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Sep</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                                Organization wanted basic attendance lists → I created peer voting visualization system to maintain community trust.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Text Block 5 -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Nov</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                                Members feared technology would disrupt relationships → I developed three-phase change management to involve users from the beginning.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Text Block 6 -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Dec</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                                Budget constraints limited testing scope → I defended A/B testing to validate gamification  approach with real users.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image -->
+                <div class="basis-0 grow bg-cover bg-center" style="background-image: url('assets/nestbank-case-study/media-3.jpg')"></div>
+            </div>
+        </div>
+
+        <!-- Full Width Image Section -->
+        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+            <video class="case-study-hero w-full h-full object-cover" autoplay muted loop playsinline>
+                <source src="assets/nestbank-case-study/media-4.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <!-- Approach -->
+        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+            <div class="w-full flex flex-row gap-8 h-[725px]">
+                <div class="basis-0 grow flex flex-col justify-start">
+                    <h2 class="font-syne font-medium text-[32px] leading-[1.4] text-theme-heading mb-14">Approach</h2>
+                    <div class="flex flex-col gap-8">
+                           <!-- Text Container 1 -->
+                            <div class="flex flex-row gap-6">
+                                <div class="basis-0 grow">
+                                    <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Change is an emotional process</p>
+                                </div>
+                                <div class="basis-0 grow">
+                                    <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">I aimed to protect member trust and reduce disruption by involving them early. <br> To support adoption, we created a three-step plan: plan, execute, and assess.</p>
+                                </div>
+                            </div>
+    
+                            <!-- Text Container 2 -->
+                            <div class="flex flex-row gap-6">
+                                <div class="basis-0 grow">
+                                    <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Finance, Demystified</p>
+                                </div>
+                                <div class="basis-0 grow">
+                                    <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">We streamlined the “My Loan” page to make loan management clearer and more accessible. Using journey maps and user stories, we identified pain points and validated key scenarios.</p>
+                                </div>
+                            </div>
+    
+                            <!-- Text Container 3 -->
+                            <div class="flex flex-row gap-6">
+                                <div class="basis-0 grow">
+                                    <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Security That Empowers</p>
+                                </div>
+                                <div class="basis-0 grow">
+                                    <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">We designed a user-friendly onboarding flow to help new members set up their Grameen profiles. To ensure data protection, the flow was built in compliance with PSD2 regulations, using two-factor authentication.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                <!-- Image -->
+                <div class="basis-0 grow bg-cover bg-center" style="background-image: url('assets/nestbank-case-study/media-11.jpg')"></div>
+            </div>
+        </div>
+
+        <!-- Two Column Image Block -->
+        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+            <div class="w-full flex flex-row gap-8">
+                <!-- Left Image -->
+                <div class="basis-0 grow bg-cover bg-center bg-no-repeat h-[925px] min-h-px min-w-px shrink-0" style="background-image: url('assets/nestbank-case-study/media-5.jpg')"></div>
+                <!-- Right Image -->
+                <div class="basis-0 grow h-[925px] min-h-px min-w-px shrink-0">
+                    <video class="w-full h-full object-cover" autoplay muted loop playsinline>
+                        <source src="assets/nestbank-case-study/media-6.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controversial Decisions -->
+        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+            <div class="w-full">
+                <h2 class="font-syne font-medium text-[32px] leading-[1.4] text-theme-heading mb-14">Controversial Decisions</h2>
+                <div class="flex flex-col gap-8">
+
+                    <!-- The Scope Expansion Choice -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">The Scope Expansion Choice</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Journey mapping revealed critical user tasks not in original stakeholder expectations. I advocated for expanding scope despite timeline and budget pressures.</p>
+                        </div>
+                    </div>
+
+                    <!-- Why this was controversial -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Why this was controversial</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Stakeholders wanted original timeline and features, but research showed critical gaps that would cause adoption failure if ignored.</p>
+                        </div>
+                    </div>
+
+
+                    <!-- Feature-First Choice -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Feature-First Choice</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">I advocated for implementing a comprehensive three-phase change management strategy (awareness, preparation, endurance) before launching core features</p>
+                        </div>
+                    </div>
+
+                    <!-- Why this was controversial -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Why this was controversial</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Leadership wanted to focus development resources on loan management features to show immediate business value. I argued that without proper change management, even perfect features would fail due to emotional resistance from members.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>  
+        
+        <!-- Full Width Image Section -->
+        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+            <video class="case-study-hero w-full h-full object-cover" autoplay muted loop playsinline>
+                <source src="assets/nestbank-case-study/media-7.mp4" type="video/mp4">
+        </div>
+
+        <!-- What We Got Wrong Section -->
+        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+                         <div class="w-full h-[500px]">
+                  <h2 class="font-syne font-medium text-[32px] leading-[1.4] text-theme-heading mb-14">What We Got Wrong</h2>
+                  <div class="flex flex-col gap-8">
+                    <!-- Failed Hypothesis 1 -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Failed hypothesis #1</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Standard financial app patterns would work for excluded communities.</p>
+                        </div>
+                    </div>
+
+                    <!-- Failed Hypothesis 2 -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Failed hypothesis #2</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Members would adapt to digital processes naturally.</p>
+                        </div>
+                    </div>
+
+                    <!-- Failed Hypothesis 3 -->
+                    <div class="flex flex-row gap-6">
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Failed hypothesis #3</p>
+                        </div>
+                        <div class="basis-0 grow">
+                            <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Simple attendance tracking would suffice.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Where We're Going -->
+        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+            <div class="w-full flex flex-row gap-8 h-[725px]">
+                <div class="basis-0 grow flex flex-col justify-start">
+                    <h2 class="font-syne font-medium text-[32px] leading-[1.4] text-theme-heading mb-14">Where We’re Going</h2>
+                    <div class="flex flex-col gap-8">
+                        <!-- Step 1 -->
+                        <div class="flex flex-row gap-6">
+                            <div class="basis-0 grow">
+                                <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Individual → Community</p>
+                            </div>
+                            <div class="basis-0 grow">
+                                <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Shift from solo dashboards to shared, peer-driven tools.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="flex flex-row gap-6">
+                            <div class="basis-0 grow">
+                                <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Onboarding → Trust</p>
+                            </div>
+                            <div class="basis-0 grow">
+                                <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Extend onboarding into a 90-day guided experience with other members.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="flex flex-row gap-6">
+                            <div class="basis-0 grow">
+                                <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Utility → Empowerment</p>
+                            </div>
+                            <div class="basis-0 grow">
+                                <p class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Add cues, visuals, and feedback to boost engagement.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image -->
+                <div class="basis-0 grow bg-cover bg-center" style="background-image: url('assets/nestbank-case-study/media-8.jpg')"></div>
+            </div>
+        </div>
+
+
+        <!-- Footer -->
+        <footer class="bg-theme-primary px-8 py-6 flex items-center justify-between animate-slide-up" style="animation-delay: 1.2s;">
+            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">
+                Laura Ledesna • ©2025
+            </div>
+            <button class="theme-toggle flex items-center gap-2" aria-label="Toggle theme">
+                <span class="theme-text font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Toggle theme</span>
+                <i class="ph ph-sun sun-icon icon-theme"></i>
+                <i class="ph ph-moon moon-icon icon-theme"></i>
+            </button>
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="scroll-button flex items-center gap-2">
+                <span class="scroll-text font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Back to top</span>
+                <div class="relative shrink-0 size-4">
+                    <div class="absolute inset-[12.5%]">
+                        <img src="assets/ArrowUp.svg" alt="Arrow Up" class="block max-w-none size-full icon-theme">
+                    </div>
+                </div>
+            </button>
+        </footer>
+    </div>
+
+    <script>
+        // Theme management
+        function setTheme(theme) {
+            const html = document.documentElement;
+            const mainContent = document.querySelector('.min-h-screen');
+            
+            mainContent?.classList.add('theme-transition-active');
+            
+            html.classList.remove('light', 'dark');
+            html.classList.add(theme);
+            localStorage.setItem('theme', theme);
+            
+            setTimeout(() => {
+                mainContent?.classList.remove('theme-transition-active');
+            }, 500);
+        }
+
+        // Set initial theme based on stored preference or system preference
+        function setInitialTheme() {
+            const storedTheme = localStorage.getItem('theme');
+            if (storedTheme) {
+                setTheme(storedTheme);
+            } else {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                setTheme(prefersDark ? 'dark' : 'light');
+            }
+        }
+        
+        // Call immediately to avoid flash of wrong theme
+        setInitialTheme();
+
+        // Listen for system theme changes (only if no stored preference)
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                setTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+
+        // Theme Toggle Functionality
+        const themeToggle = document.querySelector('.theme-toggle');
+        
+        themeToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const html = document.documentElement;
+            const newTheme = html.classList.contains('light') ? 'dark' : 'light';
+            setTheme(newTheme);
+            
+            return false;
+        });
+    </script>
+</body>
+</html> 
