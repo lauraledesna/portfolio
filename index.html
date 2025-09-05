@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/jpg" href="assets/favicon.jpg">
     <title>Laura Ledesna - Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;800&family=Inter:wght@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@600&family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script>
         tailwind.config = {
@@ -36,10 +36,90 @@
             }
         }
     </script>
+
+    
     <style>
-        body {
+        /* Variable Proximity headline uses Roboto Flex variable font */
+        .vp-roboto-flex { font-family: "Roboto Flex", sans-serif !important; }
+        .vp-word { display: inline; white-space: nowrap; }
+        .vp-letter { display: inline-block; will-change: font-variation-settings; }
+        /* Thumbnails: show videos by default on tablet/mobile */
+        @media (max-width: 1200px) {
+            /* Reveal the <video> overlay */
+            .case-study-card video {
+                opacity: 1 !important;
+            }
+            /* Hide the static background image underneath */
+            .case-study-card .absolute.bg-cover {
+                opacity: 0 !important;
+            }
+        }
+
+        /* Full-screen menu overlay */
+        .menu-overlay {
+            position: fixed;
+            top: 82px; /* keep header visible */
+            left: 0; right: 0; bottom: 0;
+            background: var(--surface-primary);
+            z-index: 100;
+            display: flex; /* keep in flow for transitions */
+            align-items: flex-start; /* align to top */
+            justify-content: flex-start; /* start at top-left */
+            border-top: 1px solid var(--stroke-border); /* border below header */
+            /* Animation base */
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity 200ms ease, transform 200ms ease;
+            pointer-events: none;
+        }
+        .menu-overlay.open { 
+            opacity: 1; 
+            transform: none; 
+            pointer-events: auto;
+        }
+        .menu-overlay .overlay-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0; /* no vertical gap, borders divide items */
+            width: 100%;
+            max-width: none; /* full width */
+            padding: 0; /* borders reach edges */
+            /* Staggered content entrance */
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 220ms ease 60ms, transform 220ms ease 60ms;
+        }
+        .menu-overlay.open .overlay-content { opacity: 1; transform: none; }
+        .menu-overlay a {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            height: 80px;
+            padding: 0 16px; /* 16px gutters */
+            border-bottom: 1px solid var(--stroke-border);
+        }
+        .menu-overlay a:last-child { border-bottom: 0; }
+        /* On mobile, keep the bottom border on the last item */
+        @media (max-width: 600px) {
+            .menu-overlay a {
+                border-left: 1px solid var(--stroke-border);
+                border-right: 1px solid var(--stroke-border);
+            }
+            .menu-overlay a:last-child { border-bottom: 1px solid var(--stroke-border); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .menu-overlay { transition: none; }
+            .menu-overlay .overlay-content { transition: none; }
+        }
+        /* removed overlay title */
+        /* Case studies section spacing */
+        /* 48px from 03 section above and 48px from cards below */
+        #case-studies { padding-top: 48px; padding-bottom: 64px; }
+        #case-studies .scroll-button { margin-bottom: 48px; }
+        html, body {
             margin: 0;
             padding: 0;
+            overflow-x: hidden; /* avoid accidental horizontal scroll */
         }
 
         /* Theme Variables */
@@ -72,6 +152,9 @@
                       border-color 0.5s ease,
                       filter 0.5s ease;
         }
+
+        /* Ensure predictable sizing */
+        *, *::before, *::after { box-sizing: border-box; }
 
         .theme-transition-active {
             animation: themeTransition 0.5s ease forwards;
@@ -123,6 +206,37 @@
             filter: brightness(0) saturate(100%) invert(1);
         }
 
+        /* Force black icons inside light footers even when page is dark */
+        footer.light .icon-theme {
+            filter: brightness(0) saturate(100%) !important;
+            color: #000 !important;
+        }
+
+        /* Prevent scroll past the end (no bounce below footer) */
+        html, body {
+            overscroll-behavior-y: none;
+            overscroll-behavior-x: none;
+        }
+
+        /* Responsive: case study card container width */
+        .cs-card-wrap { max-width: 950px; }
+        @media (max-width: 1500px) {
+            .cs-card-wrap { max-width: 800px !important; }
+        }
+
+        /* Responsive: About section vertical layout under 900px */
+        @media (max-width: 900px) {
+            .about-section .about-top { flex-direction: column !important; }
+            .about-section .about-image { width: 100% !important; height: 320px; }
+            .about-section .about-row { display: flex !important; flex-direction: column !important; gap: 8px !important; }
+            .about-section .about-row > div { width: 100% !important; flex: 0 0 auto !important; }
+            .about-section .overflow-clip { overflow: visible !important; }
+            .about-section .relative { height: auto !important; min-height: auto !important; }
+            .about-section [aria-hidden="true"] { position: static !important; inset: auto !important; }
+            .about-section .basis-0 { flex-basis: auto !important; }
+            .about-section .about-title { font-size: 32px !important; }
+        }
+
         /* Card States */
         .case-study-card {
             background-color: var(--surface-primary);
@@ -131,8 +245,10 @@
             border-color: var(--stroke-border);
         }
 
-        .case-study-card:hover {
-            background-color: var(--surface-secondary);
+        @media (min-width: 601px) {
+            .case-study-card:hover {
+                background-color: var(--surface-secondary);
+            }
         }
 
         .case-study-card:active {
@@ -268,9 +384,11 @@
             overflow: hidden;
         }
 
-        .tile:hover .tile-paragraph {
-            opacity: 1;
-            max-height: 200px;
+        @media (min-width: 1201px) {
+            .tile:hover .tile-paragraph {
+                opacity: 1;
+                max-height: 200px;
+            }
         }
 
         /* Smooth Scroll Behavior */
@@ -308,27 +426,281 @@
             height: 4px;
         }
 
+        /* Footer links: mimic Back to top hover/active underline */
+        .footer-link {
+            position: relative;
+            cursor: pointer;
+            text-decoration: none !important;
+            display: inline-block;            /* hug text */
+            align-self: flex-start;           /* don't stretch in flex column */
+            width: auto;                      /* ensure intrinsic width */
+        }
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            bottom: -4px;
+            left: 0;
+            background-color: var(--typography-heading);
+            transform: scaleX(0);
+            transition: transform 0.2s ease;
+        }
+        .footer-link:hover::after { transform: scaleX(1); }
+        .footer-link:active::after { height: 4px; }
+
         /* Navigation Responsive Styles */
         .mobile-menu {
             display: none !important;
         }
 
+        /* Disable jump animation on tile headings (Fast / Focused / Clear) */
+        .tile[aria-expanded="false"] > div:nth-child(2) > div:first-child {
+            animation: none !important;
+            will-change: auto !important;
+        }
+
         @media (max-width: 600px) {
-            .desktop-menu {
-                display: none !important;
+            /* Show mobile nav, hide desktop nav */
+            .desktop-menu { display: none !important; }
+            .mobile-menu { display: flex !important; padding-left: 16px !important; padding-right: 0 !important; }
+
+    /* Case study card: mobile vertical layout */
+    .case-study-card {
+        flex-direction: column !important;
+        gap: 0 !important;
+        height: auto !important;
+        padding: 12px !important; /* override p-2 (8px) on mobile */
+    }
+    /* Hero tiles: force full-width to avoid overflow from min-w-[350px] */
+    .tile {
+        min-width: 100% !important;
+        width: 100% !important;
+        height: 300px !important;
+        border-bottom: 1px solid var(--stroke-border) !important; /* visual divider */
+    }
+    .tile:last-child { border-bottom: 0 !important; }
+    /* Tile number size */
+    .tile > div:first-child {
+        font-size: 48px !important;
+        line-height: 1.4 !important;
+    }
+    /* Tile heading size (Fast, Focused, Clear) */
+    .tile > div:nth-child(2) > div:first-child {
+        font-size: 32px !important;
+        line-height: 1.4 !important;
+    }
+    /* Hint animation for collapsed tiles: same 2s interval, slower motion */
+    @keyframes tileHintBounce {
+        0%, 90%, 100% { transform: translateY(0); }
+        93% { transform: translateY(-6px); }
+        96% { transform: translateY(-10px); }
+        98% { transform: translateY(-3px); }
+    }
+    .tile[aria-expanded="false"] > div:nth-child(2) > div:first-child {
+        animation: tileHintBounce 3s cubic-bezier(.39, .575, .565, 1) infinite; /* gentle ease */
+        will-change: transform;
+    }
+    /* Collapsible paragraph in tiles */
+    .tile { cursor: pointer; }
+    .tile .tile-paragraph {
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition: max-height 250ms ease, opacity 200ms ease;
+    }
+    .scroll-text { -webkit-tap-highlight-color: transparent; }
+    /* Remove 1px flex gap that shows as a right stripe on small screens */
+    section.bg-theme-inverse {
+        gap: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    /* Ensure card wrappers span full width on mobile */
+    .w-full.max-w-\[792px\] { max-width: 100% !important; }
+    .self-end { align-self: stretch !important; }
+            
+            /* Hero tiles: force full-width to avoid overflow from min-w-[350px] */
+            .tile {
+                min-width: 100% !important;
+                width: 100% !important;
+                height: 300px !important;
+                border-bottom: 1px solid var(--stroke-border) !important; /* visual divider */
             }
-            .mobile-menu {
+            .tile:last-child { border-bottom: 0 !important; }
+            /* Tile number size */
+            .tile > div:first-child {
+                font-size: 48px !important;
+                line-height: 1.4 !important;
+            }
+            /* Tile heading size (Fast, Focused, Clear) */
+            .tile > div:nth-child(2) > div:first-child {
+                font-size: 32px !important;
+                line-height: 1.4 !important;
+            }
+            /* Hint animation for collapsed tiles: same 2s interval, slower motion */
+            @keyframes tileHintBounce {
+                0%, 90%, 100% { transform: translateY(0); }
+                93% { transform: translateY(-6px); }
+                96% { transform: translateY(-10px); }
+                98% { transform: translateY(-3px); }
+            }
+            .tile[aria-expanded="false"] > div:nth-child(2) > div:first-child {
+                animation: tileHintBounce 3s cubic-bezier(.39, .575, .565, 1) infinite; /* gentle ease */
+                will-change: transform;
+            }
+            /* Collapsible paragraph in tiles */
+            .tile { cursor: pointer; }
+            .tile .tile-paragraph {
+                overflow: hidden;
+                max-height: 0;
+                opacity: 0;
+                transition: max-height 250ms ease, opacity 200ms ease;
+            }
+            .scroll-text { -webkit-tap-highlight-color: transparent; }
+            /* Remove 1px flex gap that shows as a right stripe on small screens */
+            section.bg-theme-inverse {
+                gap: 0 !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            /* Ensure card wrappers span full width on mobile */
+            .w-full.max-w-\[792px\] { max-width: 100% !important; }
+            .self-end { align-self: stretch !important; }
+
+            /* Enforce 16px gutters on key sections */
+            #case-studies,
+            footer,
+            .tile,
+            .desktop-menu { /* if ever shown on tiny screens via tweaks */
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+            /* Bottom space between last card and footer */
+            #case-studies { padding-bottom: 48px !important; }
+            /* Ensure 48px spacing around the "Just Smart UX" heading on mobile too */
+            #case-studies { padding-top: 48px !important; }
+            #case-studies .scroll-button { margin-bottom: 48px !important; }
+            /* Global overrides: convert common 32px paddings to 16px */
+            .px-8 {
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+            .p-8 {
+                /* Keep vertical padding from Tailwind; only reduce horizontal */
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+            .pl-8 { padding-left: 16px !important; }
+            .pr-8 { padding-right: 16px !important; }
+
+            /* Case studies heading "Just Smart UX" */
+            #case-studies .scroll-text {
+                font-size: 20px !important;
+                line-height: 1.4 !important;
+            }
+            
+            /* Constrain main wrapper to viewport width and hide overflow */
+            .min-h-screen {
+                max-width: 100vw !important;
+                width: 100% !important;
+                overflow-x: hidden !important;
+            }
+            section, nav, footer { max-width: 100% !important; }
+            /* Top media block (image/video) */
+            .case-study-card > div:first-child {
+                position: relative !important;
+                width: 100% !important;
+                height: 200px !important;
+                flex: none !important;
+            }
+            .case-study-card > div:first-child > .absolute { /* bg image and video overlay */
+                inset: 0 !important;
+            }
+            /* Content block spacing */
+            .case-study-card > div:last-child {
+                width: 100% !important;
+                padding-top: 16px !important; /* gap/s */
                 display: flex !important;
+                flex-direction: column !important;
+                justify-content: flex-start !important;
+                row-gap: 16px !important; /* 16px between industry, title, icon */
+            }
+            /* Title size for mobile card */
+            .case-study-card > div:last-child > div:nth-child(2) {
+                font-size: 20px !important;
+                line-height: 1.4 !important;
+            }
+            /* Category size for mobile card */
+            .case-study-card > div:last-child > div:first-child {
+                font-size: 14px !important;
+                line-height: 1.6 !important;
             }
         }
+        
+        /* Footer headline size for <= 900px */
+        @media (max-width: 900px) {
+            .footer-headline { font-size: 32px !important; }
+            footer.footer-figma { padding-top: 32px !important; padding-bottom: 32px !important; }
+            footer.footer-figma .gap-24 { gap: 3rem !important; }
+            footer.footer-figma .gap-32 { gap: 1.5rem !important; }
+            /* Increase top padding for right link columns */
+            #vp-footer-container > .grid { padding-top: 40px !important; }
+        }
+
+        /* Global horizontal spacing rules for <= 750px */
+        @media (max-width: 750px) {
+            /* Override Tailwind paddings used for horizontal page gutters */
+            .px-8 {
+                padding-left: 24px !important;
+                padding-right: 24px !important;
+            }
+            .p-8 {
+                /* Keep vertical padding from Tailwind; only reduce horizontal */
+                padding-left: 24px !important;
+                padding-right: 24px !important;
+            }
+            .pl-8 { padding-left: 24px !important; }
+            .pr-8 { padding-right: 24px !important; }
+
+            /* Footer adjustments: icon-only theme toggle and no back-to-top */
+            footer .scroll-button { display: none !important; }
+            .theme-toggle .theme-text { display: none !important; }
+            .theme-toggle { gap: 0 !important; }
+
+            /* Keep wrapper 1px padding on mobile to preserve outer border */
+        }
+
+        /* Footer buttons: stack vertically and fill width on very small screens */
+        @media (max-width: 450px) {
+            .footer-buttons {
+                flex-direction: column !important;
+                width: 100% !important;
+                gap: 2rem !important; /* match gap-8 */
+            }
+            .footer-buttons > a {
+                width: 100% !important;
+                text-align: center !important;
+            }
+        }
+
+        /* Light mode: Book a call button (starts black, lighten on hover/active) */
+        .light .book-call { background: #000000 !important; color: #ffffff !important; }
+        .light .book-call:hover { background: #0d0d0d !important; }
+        .light .book-call:active { background: #1a1a1a !important; }
+
+        /* Light mode: Message outlined button (starts transparent, darken on hover/active) */
+        .light .message-btn { background: transparent !important; }
+        .light .message-btn:hover { background: rgba(0,0,0,0.05) !important; }
+        .light .message-btn:active { background: rgba(0,0,0,0.10) !important; }
     </style>
 </head>
 <body class="bg-theme-primary">
-    <div class="min-h-screen bg-theme-inverse p-[1px] flex flex-col gap-[1px] mx-auto" style="max-width: 1536px;">
+    <div class="min-h-screen bg-theme-inverse p-[1px] flex flex-col gap-[1px] mx-auto">
         <!-- Navigation -->
         <!-- Desktop Navigation -->
         <nav class="desktop-menu bg-theme-primary h-[82px] flex items-center justify-between pl-8 animate-slide-up nav-animation">
-            <div class="font-syne font-medium text-[16px] leading-[1.6] text-theme-heading">Laura Ledesna</div>
+            <a href="index.html" class="font-syne font-medium text-[16px] leading-[1.6] text-theme-heading">Laura Ledesna</a>
             <div class="flex h-full">
                 <a href="mailto:iamlauraledesna@gmail.com" class="menu-item h-[82px] w-[167px] flex items-center px-4 border-l border-theme">
                     <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Email</span>
@@ -341,16 +713,71 @@
 
         <!-- Mobile Navigation -->
         <nav class="mobile-menu bg-theme-primary h-[82px] flex items-center justify-between pl-4 pr-0 animate-slide-up nav-animation">
-            <div class="font-syne font-medium text-[16px] leading-[1.6] text-theme-heading whitespace-pre">Laura Ledesna</div>
-            <div class="bg-theme-primary flex items-center justify-center size-[82px] relative shrink-0 border-l border-theme">
+            <a href="index.html" class="font-syne font-medium text-[16px] leading-[1.6] text-theme-heading whitespace-pre">Laura Ledesna</a>
+            <button id="mobile-menu-toggle" class="bg-theme-primary flex items-center justify-center size-[82px] relative shrink-0 border-l border-theme" aria-expanded="false" aria-controls="menu-overlay" aria-label="Open menu">
                 <div class="relative shrink-0 size-8">
-                    <div class="absolute inset-[12.5%]">
+                    <div class="absolute inset-[12.5%] icon-menu">
                         <img src="assets/List.svg" alt="Menu" class="block max-w-none size-full icon-theme">
                     </div>
+                    <div class="absolute inset-[12.5%] icon-close" style="display:none;">
+                        <svg viewBox="0 0 256 256" class="block max-w-none size-full icon-theme" aria-hidden="true" focusable="false">
+                            <line x1="200" y1="56" x2="56" y2="200" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="56" y1="56" x2="200" y2="200" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
                 </div>
-            </div>
+            </button>
         </nav>
 
+        <!-- Full-screen Menu Overlay -->
+        <div id="menu-overlay" class="menu-overlay" aria-hidden="true">
+            <div class="overlay-content">
+                <a href="index.html" class="menu-item">
+                    <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Home</span>
+                </a>
+                <a href="mailto:iamlauraledesna@gmail.com" class="menu-item">
+                    <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Email</span>
+                </a>
+                <a href="assets/cv-laura-ledesna.pdf" download target="_blank" class="menu-item">
+                    <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Resume</span>
+                </a>
+            </div>
+        </div>
+
+    <script>
+      // Auto play/pause bottom video when entering/leaving viewport
+      (function(){
+        const video = document.getElementById('promo-video');
+        if (!video || typeof IntersectionObserver === 'undefined') return;
+
+        const playVideo = () => { try { video.play(); } catch (e) { /* ignore */ } };
+        const pauseVideo = () => { try { video.pause(); } catch (e) { /* ignore */ } };
+
+        const io = new IntersectionObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+              playVideo();
+            } else {
+              pauseVideo();
+            }
+          }
+        }, { threshold: [0, 0.5, 1] });
+
+        io.observe(video);
+
+        // If already on screen on load
+        if (video.getBoundingClientRect) {
+          const r = video.getBoundingClientRect();
+          const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+          const visible = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+          const ratio = r.height ? visible / r.height : 0;
+          if (ratio >= 0.5) playVideo();
+        }
+
+        // Pause when tab hidden
+        document.addEventListener('visibilitychange', () => { if (document.hidden) pauseVideo(); });
+      })();
+    </script>
         <!-- Hero Section -->
         <section class="bg-theme-inverse flex flex-wrap gap-[1px] w-full">
             <div class="tile bg-theme-primary flex flex-col justify-between basis-0 grow min-w-[350px] h-[400px] px-8 py-6 animate-slide-up tile-1">
@@ -376,7 +803,7 @@
                 <div class="flex flex-col gap-2">
                     <div class="font-syne font-medium text-[48px] leading-[1.4] text-theme-heading">Clear</div>
                     <div class="tile-paragraph font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
-                        Some things don’t change,  design isn’t about making things pretty. It’s about building clarity.
+                        Some things don’t change, design isn’t about making things pretty. It’s about building clarity.
                     </div>
                 </div>
             </div>
@@ -394,18 +821,43 @@
             </button>
             <div class="flex flex-col space-y-6">
                 <!-- Case Study Card 1 -->
-                <div class="w-full max-w-[792px] animate-slide-up case-study-1">
-                    <a href="nestbank-case-study.html" class="block">
-                        <div class="case-study-card border border-theme p-2 flex gap-4 h-[299px] group">
+                <div class="w-full max-w-[950px] cs-card-wrap animate-slide-up case-study-1">
+                    <a href="ai-solution-case-study.html" class="block">
+                    <div class="case-study-card border border-theme p-2 flex gap-4 h-[299px] group">
                             <div class="flex-1 relative">
-                                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('assets/nestbank-case-study/media-10.png')"></div>
+                                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('assets/ai-solution-case-study/media-13.png')"></div>
                                 <video class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100" autoplay muted loop playsinline>
-                                    <source src="assets/nestbank-case-study/media-9.mp4" type="video/mp4">
+                                    <source src="assets/ai-solution-case-study/media-14.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <div class="flex-1 flex flex-col justify-between">
-                                <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Fintech • Mobile App</div>
-                                <div class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">Nestbank: Inclusive Financial Access</div>
+                            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">MVP • Automation with AI • Zero UI Design</div>
+                            <div class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">AI Research, Before You Even Ask</div>
+                            <div class="flex justify-end">
+                                <div class="relative shrink-0 size-8">
+                                    <div class="absolute inset-[15%]">
+                                        <img src="assets/ArrowDownRight.svg" alt="Arrow" class="block max-w-none size-full icon-theme">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </a>
+                </div>
+
+                <!-- Case Study Card 2 -->
+                <div class="w-full max-w-[950px] cs-card-wrap self-end scroll-animate" data-scroll>
+                    <a href="nestbank-case-study.html" class="block">
+                        <div class="case-study-card border border-theme p-2 flex gap-4 h-[299px] group">
+                            <div class="flex-1 relative">
+                                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('assets/nestbank-case-study/media-13.png')"></div>
+                                <video class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100" autoplay muted loop playsinline>
+                                    <source src="assets/nestbank-case-study/media-14.mp4" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="flex-1 flex flex-col justify-between">
+                                <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Design Leadership • 0 - 1 • Cost Saving • High Complexity</div>
+                                <div class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">Inclusive Finance, Powered by Design</div>
                                 <div class="flex justify-end">
                                     <div class="relative shrink-0 size-8">
                                         <div class="absolute inset-[15%]">
@@ -418,19 +870,19 @@
                     </a>
                 </div>
 
-                <!-- Case Study Card 2 -->
-                <div class="w-full max-w-[792px] self-end scroll-animate" data-scroll>
+                <!-- Case Study Card 3 -->
+                <div class="w-full max-w-[950px] cs-card-wrap scroll-animate" data-scroll>
                     <a href="medigo-case-study.html" class="block">
                         <div class="case-study-card border border-theme p-2 flex gap-4 h-[299px] group">
                             <div class="flex-1 relative">
-                                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('assets/medigo-case-study/media-2.png')"></div>
+                                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('assets/medigo-case-study/media-17.png')"></div>
                                 <video class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100" autoplay muted loop playsinline>
-                                    <source src="assets/medigo-case-study/media-1.mp4" type="video/mp4">
+                                    <source src="assets/medigo-case-study/media-18.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <div class="flex-1 flex flex-col justify-between">
-                            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Healthcare • AI Solution • Mobile App</div>
-                            <div class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">How I convinced skeptical medical teams that AI could enhance, not replace human care</div>
+                            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">AI-Driven Personalization • Leading Multi-Stakeholder Collaboration • Atomic Research Model</div>
+                            <div class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">When Doctors Said No to AI</div>
                             <div class="flex justify-end">
                                 <div class="relative shrink-0 size-8">
                                     <div class="absolute inset-[15%]">
@@ -445,16 +897,138 @@
             </div>
         </section>
 
-        <!-- Footer -->
-        <footer class="bg-theme-primary px-8 py-6 flex items-center justify-between animate-slide-up" style="animation-delay: 1.2s;">
-            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">
-                Laura Ledesna • ©2025
+        <!-- About Section (from Figma) -->
+        <section class="about-section bg-[#3871EF] box-border flex flex-col gap-8 items-start justify-start px-8 pt-8 pb-16 relative w-full" data-node-id="230:909">
+            <!-- Top container: heading/paragraph and image -->
+            <div class="about-top flex w-full gap-8 items-start justify-start scroll-animate" data-scroll>
+                <div class="basis-0 grow min-h-px min-w-px relative border-t border-black">
+                    <div class="flex flex-col gap-8 overflow-clip px-0 py-2 w-full">
+                        <div class="about-row flex w-full gap-[128px] items-start justify-start leading-[0] not-italic">
+                            <div class="about-title basis-0 grow min-h-px min-w-px text-[48px] font-syne font-medium text-black">
+                                <p class="leading-[1.4]">About</p>
+                            </div>
+                            <div class="basis-0 grow min-h-px min-w-px text-[16px] font-syne font-normal text-[#0d0d0d]">
+                                <p class="leading-[1.6]">With over 8 years of experience in UX and UI design, I specialize in creating scalable systems that leverage AI to deliver smarter, more intuitive products. My background spans industries from healthcare to fintech, where I’ve built tools that inspire trust and make a lasting impact.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image bg-center bg-cover bg-no-repeat h-[341px] w-[358px] shrink-0" style="background-image: url('assets/profile-img.jpeg');"></div>
             </div>
-            <button type="button" class="theme-toggle flex items-center gap-2" aria-label="Toggle theme">
-                <span class="theme-text font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Toggle theme</span>
-                <i class="ph ph-sun sun-icon icon-theme"></i>
-                <i class="ph ph-moon moon-icon icon-theme"></i>
-            </button>
+
+            <!-- Row 1 -->
+            <div class="relative w-full border-t border-black scroll-animate" data-scroll>
+                <div class="flex flex-col gap-8 overflow-clip px-0 py-2 w-full">
+                    <div class="about-row flex w-full gap-[128px] items-start justify-start leading-[0] not-italic text-[16px]">
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-black">
+                            <p class="leading-[1.6]">Part of the international book Conscious UX:</p>
+                        </div>
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#0d0d0d]">
+                            <p class="leading-[1.6]">Selected among 130 industry experts, including Don Norman and Brenda Laurel, for a global compendium on conscious design.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="relative w-full border-t border-black scroll-animate" data-scroll>
+                <div class="flex flex-col gap-8 overflow-clip px-0 py-2 w-full">
+                    <div class="about-row flex w-full gap-[128px] items-start justify-start leading-[0] not-italic text-[16px]">
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-black">
+                            <p class="leading-[1.6]">Winning identity for political campaign in NYC:</p>
+                        </div>
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#0d0d0d]">
+                            <p class="leading-[1.6]">Designed the visual identity and campaign materials for Justin Sanchez, Democratic and WFP candidate, who was elected as City Council Member for New York’s 17th District.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="relative w-full border-t border-black scroll-animate" data-scroll>
+                <div class="flex flex-col gap-8 overflow-clip px-0 py-2 w-full">
+                    <div class="about-row flex w-full gap-[128px] items-start justify-start leading-[0] not-italic text-[16px]">
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-black">
+                            <p class="leading-[1.6]">National educational strategy with the Ministry of Education and the Presidency of Colombia:</p>
+                        </div>
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#0d0d0d]">
+                            <p class="leading-[1.6]">Co-creator of Profe en tu casa, a TV and radio program that ensured access to education during the lockdown. Recognized across Latin America for its inclusive and connectivity-focused approach.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 4 -->
+            <div class="relative w-full border-t border-black scroll-animate" data-scroll>
+                <div class="flex flex-col gap-8 overflow-clip px-0 py-2 w-full">
+                    <div class="about-row flex w-full gap-[128px] items-start justify-start leading-[0] not-italic text-[16px]">
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-black">
+                            <p class="leading-[1.6]">Mentor at ADPList:</p>
+                        </div>
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#0d0d0d]">
+                            <p class="leading-[1.6]">Provide free 1:1 mentorship to designers worldwide through Amazing Design People List, focusing on UX, AI applied to design, and research.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="light bg-theme-primary px-8 py-12 animate-slide-up footer-figma" style="animation-delay: 1.2s;">
+            <div id="vp-footer-container" class="w-full mx-auto flex flex-col lg:flex-row gap-32 items-start justify-between">
+                <!-- Left: Title + Buttons -->
+                <div class="basis-0 grow flex flex-col gap-12">
+                    <h2 id="vp-footer-headline" class="vp-roboto-flex font-syne font-medium text-[48px] leading-[1.4] text-theme-heading footer-headline">
+                        Every great experience starts with a conversation.
+                    </h2>
+                    <div class="flex gap-8 footer-buttons">
+                        <a href="https://calendly.com/iamlauraledesna/new-meeting?month=2025-08" target="_blank" rel="noopener noreferrer" class="book-call bg-white hover:bg-[#f2f2f2] active:bg-[#e6e6e6] transition-colors duration-150 text-black px-6 py-4 font-syne font-medium not-italic text-[16px] leading-[1.6] whitespace-nowrap" aria-label="Book a call">
+                            Book a call
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right: Link columns -->
+                <div class="basis-0 grow grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16 w-full " style="
+                padding-top: 16px;
+            ">
+                    <!-- Navigation -->
+                    <div class="flex flex-col gap-4">
+                        <div class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Navigation</div>
+                        <nav class="flex flex-col gap-4 font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                            <a href="ai-solution-case-study.html" class="footer-link">AI Solution</a>
+                            <a href="nestbank-case-study.html" class="footer-link">Nestbank</a>
+                            <a href="medigo-case-study.html" class="footer-link">Medigo</a>
+                        </nav>
+                    </div>
+
+                    <!-- More From Me -->
+                    <div class="flex flex-col gap-4">
+                        <div class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">More From Me</div>
+                        <div class="flex flex-col gap-4 font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                            <a href="https://medium.com/@iamlauraledesna" target="_blank" rel="noopener noreferrer" class="footer-link">Medium Articles</a>
+                            <a href="assets/cv-laura-ledesna.pdf" download target="_blank" rel="noopener noreferrer" class="footer-link">Resume</a>
+                        </div>
+                    </div>
+
+                    <!-- Contact Me -->
+                    <div class="flex flex-col gap-4">
+                        <div class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Contact Me</div>
+                        <div class="flex flex-col gap-4 font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                            <a href="https://calendly.com/iamlauraledesna/new-meeting?month=2025-08" target="_blank" rel="noopener noreferrer" class="footer-link">Book a Call</a>
+                            <a href="mailto:iamlauraledesna@gmail.com" class="footer-link">Email</a>
+                            <a href="https://www.linkedin.com/in/iamlauraledesna/" target="_blank" rel="noopener noreferrer" class="footer-link">LinkedIn</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </footer>
+        <!-- Case-study footer -->
+        <footer class="light bg-theme-primary px-8 py-6 flex items-center justify-between animate-slide-up" style="animation-delay: 1.2s;">
+            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">
+                <a href="index.html" class="no-underline text-theme-heading">Laura Ledesna • ©2025</a>
+            </div>
             <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="scroll-button flex items-center gap-2">
                 <span class="scroll-text font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Back to top</span>
                 <div class="relative shrink-0 size-4">
@@ -483,40 +1057,15 @@
             }, 500);
         }
 
-        // Set initial theme based on stored preference or system preference
+        // Set initial theme: always dark; ignore stored or system preferences
         function setInitialTheme() {
-            const storedTheme = localStorage.getItem('theme');
-            if (storedTheme) {
-                setTheme(storedTheme);
-            } else {
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                setTheme(prefersDark ? 'dark' : 'light');
-            }
+            setTheme('dark');
         }
         
         // Call immediately to avoid flash of wrong theme
         setInitialTheme();
 
-        // Listen for system theme changes (only if no stored preference)
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (!localStorage.getItem('theme')) {
-                setTheme(e.matches ? 'dark' : 'light');
-            }
-        });
-
-        // Theme Toggle Functionality
-        const themeToggle = document.querySelector('.theme-toggle');
-        
-        themeToggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const html = document.documentElement;
-            const newTheme = html.classList.contains('light') ? 'dark' : 'light';
-            setTheme(newTheme);
-            
-            return false;
-        });
+        // Remove theme switching: no listeners or UI
 
         // Intersection Observer for scroll animations
         const observer = new IntersectionObserver((entries) => {
@@ -534,5 +1083,314 @@
             observer.observe(element);
         });
     </script>
-</body>
-</html> 
+
+    <script>
+    // Collapse/expand tile description paragraphs below 600px
+    (function () {
+      const mql = window.matchMedia('(max-width: 1200px)');
+      const tiles = Array.from(document.querySelectorAll('.tile'));
+
+      function applyClosed(p) {
+        if (!p) return;
+        p.style.overflow = 'hidden';
+        p.style.maxHeight = '0px';
+        p.style.opacity = '0';
+        p.style.transition = 'max-height 250ms ease, opacity 200ms ease';
+      }
+
+      function openPara(p) {
+        p.style.maxHeight = p.scrollHeight + 'px';
+        p.style.opacity = '1';
+      }
+
+      function closePara(p) {
+        p.style.maxHeight = '0px';
+        p.style.opacity = '0';
+      }
+
+      function toggle(e) {
+        const tile = e.currentTarget;
+        const p = tile.querySelector('.tile-paragraph');
+        if (!p) return;
+        const isOpen = p.style.maxHeight && p.style.maxHeight !== '0px';
+        if (isOpen) {
+          closePara(p);
+          tile.setAttribute('aria-expanded', 'false');
+        } else {
+          // Close all other tiles first
+          tiles.forEach((other) => {
+            if (other !== tile) {
+              const op = other.querySelector('.tile-paragraph');
+              if (op && op.style.maxHeight && op.style.maxHeight !== '0px') {
+                closePara(op);
+                other.setAttribute('aria-expanded', 'false');
+              }
+            }
+          });
+          // Now open the requested tile
+          openPara(p);
+          tile.setAttribute('aria-expanded', 'true');
+        }
+      }
+
+      function onKey(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggle(e);
+        }
+      }
+
+      function enable() {
+        tiles.forEach((tile) => {
+          const p = tile.querySelector('.tile-paragraph');
+          applyClosed(p);
+          tile.style.cursor = 'pointer';
+          tile.setAttribute('role', 'button');
+          tile.setAttribute('tabindex', '0');
+          // mark collapsed by default for hint animation
+          tile.setAttribute('aria-expanded', 'false');
+          tile.addEventListener('click', toggle);
+          tile.addEventListener('keydown', onKey);
+        });
+      }
+
+      function disable() {
+        tiles.forEach((tile) => {
+          const p = tile.querySelector('.tile-paragraph');
+          if (p) {
+            p.style.overflow = '';
+            p.style.maxHeight = '';
+            p.style.transition = '';
+            p.style.opacity = '';
+          }
+          tile.style.cursor = '';
+          tile.removeAttribute('role');
+          tile.removeAttribute('tabindex');
+          tile.removeAttribute('aria-expanded');
+          tile.removeEventListener('click', toggle);
+          tile.removeEventListener('keydown', onKey);
+        });
+      }
+
+      function handle(e) {
+        if (e.matches) enable(); else disable();
+      }
+
+      handle(mql);
+      mql.addEventListener('change', handle);
+    })();
+    </script>
+
+    <script>
+      // Avoid jumping to top when triggering external handlers like mailto
+      let __skipScrollResetOnLeave = false;
+      document.addEventListener('click', function (e) {
+        const a = e.target && e.target.closest ? e.target.closest('a[href^="mailto:"]') : null;
+        if (a) {
+          __skipScrollResetOnLeave = true;
+          // Reset the flag shortly after to avoid affecting future navigations
+          setTimeout(() => { __skipScrollResetOnLeave = false; }, 1500);
+        }
+      }, true);
+
+      window.addEventListener('beforeunload', function () {
+        if (!__skipScrollResetOnLeave) {
+          window.scrollTo(0, 0);
+        }
+      });
+      // Also handle normal loads and bfcache restores
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      window.addEventListener('load', function () {
+        window.scrollTo(0, 0);
+      });
+      window.addEventListener('pageshow', function (e) {
+        if (e.persisted) {
+          window.scrollTo(0, 0);
+        }
+      });
+    </script>
+    <script>
+      // Mobile full-screen overlay menu (active only when <=600px)
+      (function(){
+        const toggle = document.getElementById('mobile-menu-toggle');
+        const overlay = document.getElementById('menu-overlay');
+        if (!toggle || !overlay) return;
+        const mql = window.matchMedia('(max-width: 600px)');
+
+        let __overlayScrollY = 0;
+        function lockScroll(){
+          __overlayScrollY = window.scrollY || window.pageYOffset || 0;
+          document.documentElement.style.overflow = 'hidden';
+          document.body.style.position = 'fixed';
+          document.body.style.top = `-${__overlayScrollY}px`;
+          document.body.style.left = '0';
+          document.body.style.right = '0';
+          document.body.style.width = '100%';
+        }
+        function unlockScroll(){
+          document.documentElement.style.overflow = '';
+          document.body.style.position = '';
+          document.body.style.top = '';
+          document.body.style.left = '';
+          document.body.style.right = '';
+          document.body.style.width = '';
+          window.scrollTo(0, __overlayScrollY || 0);
+        }
+
+        function openOverlay(){
+          overlay.classList.add('open');
+          overlay.setAttribute('aria-hidden','false');
+          toggle.setAttribute('aria-expanded','true');
+          document.addEventListener('click', onDoc, true);
+          document.addEventListener('keydown', onKey, true);
+          lockScroll();
+          // swap icons and label
+          const menuIco = toggle.querySelector('.icon-menu');
+          const closeIco = toggle.querySelector('.icon-close');
+          if (menuIco) menuIco.style.display = 'none';
+          if (closeIco) closeIco.style.display = 'block';
+          toggle.setAttribute('aria-label','Close menu');
+        }
+        function closeOverlay(){
+          overlay.classList.remove('open');
+          overlay.setAttribute('aria-hidden','true');
+          toggle.setAttribute('aria-expanded','false');
+          document.removeEventListener('click', onDoc, true);
+          document.removeEventListener('keydown', onKey, true);
+          unlockScroll();
+          // swap icons and label back
+          const menuIco = toggle.querySelector('.icon-menu');
+          const closeIco = toggle.querySelector('.icon-close');
+          if (menuIco) menuIco.style.display = 'block';
+          if (closeIco) closeIco.style.display = 'none';
+          toggle.setAttribute('aria-label','Open menu');
+        }
+        function onToggle(e){
+          e.stopPropagation();
+          if (!mql.matches) return;
+          const open = overlay.classList.contains('open');
+          open ? closeOverlay() : openOverlay();
+        }
+        function onDoc(e){
+          // Close if clicking outside inner content (background tap)
+          const content = overlay.querySelector('.overlay-content');
+          if (!content.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
+            closeOverlay();
+          }
+        }
+        function onKey(e){ if (e.key === 'Escape') closeOverlay(); }
+        function handle(){ closeOverlay(); if (mql.matches){ toggle.addEventListener('click', onToggle); } else { toggle.removeEventListener('click', onToggle); } }
+
+        handle();
+        mql.addEventListener('change', handle);
+        // Close overlay on navigation clicks
+        overlay.querySelectorAll('a').forEach(a => a.addEventListener('click', closeOverlay));
+      })();
+    </script>
+
+    <script>
+      // Variable Proximity effect (vanilla JS) for footer headline
+      (function(){
+        const container = document.getElementById('vp-footer-container');
+        const headline = document.getElementById('vp-footer-headline');
+        if (!container || !headline) return;
+
+        const label = (headline.textContent || '').trim();
+        if (!label) return;
+
+        // Config
+        const radius = 100; // px
+        const falloff = 'linear'; // 'linear' | 'exponential' | 'gaussian'
+        const fromSettings = "'wght' 400, 'opsz' 9";
+        const toSettings = "'wght' 1000, 'opsz' 40";
+
+        // Parse settings into axis/value pairs
+        function parseSettings(str){
+          const map = new Map();
+          str.split(',').map(s=>s.trim()).forEach(s=>{
+            if (!s) return;
+            const parts = s.split(/\s+/);
+            const axis = parts[0] ? parts[0].replace(/["']/g,'') : '';
+            const value = parts[1] ? parseFloat(parts[1]) : NaN;
+            if (axis && !Number.isNaN(value)) map.set(axis, value);
+          });
+          return map;
+        }
+        const fromMap = parseSettings(fromSettings);
+        const toMap = parseSettings(toSettings);
+        const parsed = [];
+        fromMap.forEach((fromValue, axis)=>{
+          const toValue = toMap.has(axis) ? toMap.get(axis) : fromValue;
+          parsed.push({ axis, fromValue, toValue });
+        });
+
+        // Split headline text into word/letter spans
+        const words = label.split(' ');
+        headline.textContent = '';
+        words.forEach((word, wi)=>{
+          const w = document.createElement('span');
+          w.className = 'vp-word';
+          for (let i=0;i<word.length;i++){
+            const l = document.createElement('span');
+            l.className = 'vp-letter';
+            l.textContent = word[i];
+            l.style.fontVariationSettings = fromSettings;
+            w.appendChild(l);
+          }
+          headline.appendChild(w);
+          if (wi < words.length - 1) headline.appendChild(document.createTextNode(' '));
+        });
+
+        const letters = Array.from(headline.querySelectorAll('.vp-letter'));
+        const mouse = { x: 0, y: 0 };
+        const last = { x: null, y: null };
+
+        function falloffValue(distance){
+          const norm = Math.min(Math.max(1 - distance / radius, 0), 1);
+          if (falloff === 'exponential') return norm * norm;
+          if (falloff === 'gaussian') return Math.exp(-((distance / (radius / 2)) ** 2) / 2);
+          return norm; // linear
+        }
+
+        function onMove(clientX, clientY){
+          const rect = container.getBoundingClientRect();
+          mouse.x = clientX - rect.left;
+          mouse.y = clientY - rect.top;
+        }
+
+        window.addEventListener('mousemove', (e)=> onMove(e.clientX, e.clientY), { passive: true });
+        window.addEventListener('touchmove', (e)=> {
+          const t = e.touches && e.touches[0];
+          if (t) onMove(t.clientX, t.clientY);
+        }, { passive: true });
+
+        function loop(){
+          if (last.x !== mouse.x || last.y !== mouse.y){
+            last.x = mouse.x; last.y = mouse.y;
+            const cr = container.getBoundingClientRect();
+            for (const el of letters){
+              const r = el.getBoundingClientRect();
+              const cx = r.left + r.width / 2 - cr.left;
+              const cy = r.top + r.height / 2 - cr.top;
+              const distance = Math.hypot(mouse.x - cx, mouse.y - cy);
+              if (distance >= radius){
+                el.style.fontVariationSettings = fromSettings;
+              } else {
+                const f = falloffValue(distance);
+                const settings = parsed.map(({axis, fromValue, toValue})=>{
+                  const v = fromValue + (toValue - fromValue) * f;
+                  return `'${axis}' ${v}`;
+                }).join(', ');
+                el.style.fontVariationSettings = settings;
+              }
+            }
+          }
+          requestAnimationFrame(loop);
+        }
+        requestAnimationFrame(loop);
+      })();
+    </script>
+  </body>
+</html>
