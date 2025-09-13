@@ -39,6 +39,7 @@
     <script>
       // Variable Proximity effect (vanilla JS) for footer headline
       (function(){
+        return; // disabled footer hover effect on headline
         function init(){
           const container = document.getElementById('vp-footer-container');
           const headline = document.getElementById('vp-footer-headline');
@@ -201,7 +202,7 @@
         /* FAB hidden by default; enabled in mobile media query */
         .fab-top { display: none; }
         /* On mobile, keep the bottom border on the last item */
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             .menu-overlay a {
                 border-left: 1px solid var(--stroke-border);
                 border-right: 1px solid var(--stroke-border);
@@ -336,12 +337,16 @@
             background-color: var(--surface-tertiary);
         }
 
+        /* Scroll-in animations (animate inner content, not the container) */
+        .scroll-animate > * { opacity: 0; transform: translateY(100px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .scroll-animate.visible > * { opacity: 1; transform: translateY(0); }
+
         /* Navigation Responsive Styles */
         .mobile-menu {
             display: none !important;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             .desktop-menu {
                 display: none !important;
             }
@@ -372,19 +377,23 @@
             padding: 32px;
         }
 
+        /* Ensure pb-16 wins over the base shorthand padding declaration */
+        .case-study-content.pb-16 { padding-bottom: 64px !important; }
+
         /* Global horizontal spacing rules for <= 750px */
         @media (max-width: 750px) {
             .px-8 {
-                padding-left: 24px !important;
-                padding-right: 24px !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
             }
             .p-8 {
-                padding-left: 24px !important;
-                padding-right: 24px !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
             }
-            .pl-8 { padding-left: 24px !important; }
-            .pr-8 { padding-right: 24px !important; }
-            .case-study-content { padding: 24px !important; }
+            .pl-8 { padding-left: 16px !important; }
+            .pr-8 { padding-right: 16px !important; }
+            /* Preserve bottom padding (e.g., pb-16) while tightening horizontal gutters */
+            .case-study-content { padding-left: 16px !important; padding-right: 16px !important; }
             /* Footer adjustments */
             footer .scroll-button { display: none !important; }
             .theme-toggle .theme-text { display: none !important; }
@@ -577,13 +586,16 @@
     </style>
 </head>
 <body class="bg-theme-primary">
-    <div class="min-h-screen bg-theme-inverse p-[1px] flex flex-col gap-[1px] mx-auto">
+    <div class="min-h-screen bg-theme-inverse p-[1px] flex flex-col gap-[1px] mx-auto max-w-[1920px] w-full">
         <!-- Navigation -->
         <nav class="desktop-menu bg-theme-primary h-[82px] flex items-center justify-between pl-8 animate-slide-up nav-animation">
             <a href="index.html" class="font-syne font-medium text-[16px] leading-[1.6] text-theme-heading">Laura Ledesna</a>
             <div class="flex h-full">
                 <a href="mailto:iamlauraledesna@gmail.com" class="menu-item h-[82px] w-[167px] flex items-center px-4 border-l border-theme">
                     <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Email</span>
+                </a>
+                <a href="archive.html" class="menu-item h-[82px] w-[167px] flex items-center px-4 border-l border-theme">
+                    <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Archive</span>
                 </a>
                 <a href="assets/cv-laura-ledesna.pdf" download target="_blank" class="menu-item h-[82px] w-[167px] flex items-center px-4 border-l border-theme">
                 <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Resume</span>
@@ -620,6 +632,9 @@
                 <a href="index.html" class="menu-item">
                     <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Home</span>
                 </a>
+                <a href="archive.html" class="menu-item">
+                    <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Archive</span>
+                </a>
                 <a href="mailto:iamlauraledesna@gmail.com" class="menu-item">
                     <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Email</span>
                 </a>
@@ -630,7 +645,7 @@
         </div>
 
         <!-- Case Study Content -->
-        <div class="bg-theme-primary case-study-content animate-slide-up" style="animation-delay: 0.2s;">
+        <div class="bg-theme-primary case-study-content animate-slide-up pb-16" style="animation-delay: 0.2s;">
             <video class="case-study-hero w-full h-full object-cover" autoplay muted loop playsinline>
                 <source src="assets/nestbank-case-study/media-1.mp4" type="video/mp4">
             </video>
@@ -651,7 +666,7 @@
         </div>
 
         <!-- Timeline -->
-        <div class="bg-theme-primary px-8 py-6 animate-slide-up border-b border-theme" style="animation-delay: 0.6s;">
+        <div class="bg-theme-primary px-8 py-6 pb-16 animate-slide-up border-b border-theme" style="animation-delay: 0.6s;">
             <div class="w-full mx-auto flex flex-row gap-6">
                 <div class="basis-0 grow">
                     <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Timeline</p>
@@ -663,7 +678,7 @@
         </div>
 
         <!-- Role -->
-        <div class="bg-theme-primary px-8 py-6 animate-slide-up" style="animation-delay: 0.7s;">
+        <div class="bg-theme-primary px-8 py-6 pb-16 animate-slide-up" style="animation-delay: 0.7s;">
             <div class="w-full mx-auto flex flex-row gap-6">
                 <div class="basis-0 grow">
                     <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Role</p>
@@ -675,7 +690,7 @@
         </div>
 
         <!-- Method -->
-        <div class="bg-theme-primary px-8 py-6 animate-slide-up border-b border-theme" style="animation-delay: 0.8s;">
+        <div class="bg-theme-primary px-8 py-6 pb-16 animate-slide-up border-b border-theme" style="animation-delay: 0.8s;">
             <div class="w-full mx-auto flex flex-row gap-6">
                 <div class="basis-0 grow">
                     <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Method</p>
@@ -687,7 +702,7 @@
         </div>
 
         <!-- Team -->
-        <div class="bg-theme-primary px-8 py-6 animate-slide-up border-b border-theme" style="animation-delay: 0.9s;">
+        <div class="bg-theme-primary px-8 py-6 pb-16 animate-slide-up border-b border-theme" style="animation-delay: 0.9s;">
             <div class="w-full mx-auto flex flex-row gap-6">
                 <div class="basis-0 grow">
                     <p class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Team</p>
@@ -719,7 +734,7 @@
         </div>
 
         <!-- What We Got Wrong Section -->
-        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+        <div class="bg-theme-primary p-8 pb-16 scroll-animate" data-scroll>
                 <div class="w-full">
                   <h2 class="font-syne font-medium text-[32px] leading-[1.4] text-theme-heading mb-14">What We Got Wrong</h2>
                   <div class="flex flex-col gap-8">
@@ -771,7 +786,7 @@
         </div>
 
         <!-- Controversial Decisions -->
-        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+        <div class="bg-theme-primary p-8 pb-16 scroll-animate" data-scroll>
             <div class="w-full">
                 <h2 class="font-syne font-medium text-[32px] leading-[1.4] text-theme-heading mb-14">Controversial Decisions</h2>
                 <div class="flex flex-col gap-8">
@@ -918,7 +933,7 @@
         </div>
 
         <!-- Approach -->
-        <div class="bg-theme-primary p-8 scroll-animate" data-scroll>
+        <div class="bg-theme-primary p-8 pb-16 scroll-animate" data-scroll>
             <div class="w-full flex flex-row gap-8">
                 <div class="basis-0 grow flex flex-col justify-start">
                     <h2 class="font-syne font-medium text-[32px] leading-[1.4] text-theme-heading mb-14">Approach</h2>
@@ -1062,7 +1077,7 @@
             <div id="vp-footer-container" class="w-full mx-auto flex flex-col lg:flex-row gap-32 items-start justify-between">
                 <!-- Left: Title + Buttons -->
                 <div class="basis-0 grow flex flex-col gap-12">
-                    <h2 id="vp-footer-headline" class="vp-roboto-flex font-syne font-medium text-[48px] leading-[1.4] text-theme-heading footer-headline">
+                    <h2 id="vp-footer-headline" class="font-syne font-medium text-[48px] leading-[1.4] text-theme-heading footer-headline">
                         Every great experience starts with a conversation.
                     </h2>
                     <div class="flex gap-8 footer-buttons">
@@ -1081,8 +1096,8 @@
                         <div class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Navigation</div>
                         <nav class="flex flex-col gap-4 font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
                             <a href="index.html" class="footer-link">Home</a>
-                            <a href="ai-solution-case-study.html" class="footer-link">AI Solution</a>
-                            <a href="medigo-case-study.html" class="footer-link">Medigo</a>
+                            <a href="ai-solution-case-study.html" class="footer-link">AI UXOps</a>
+                            <a href="medigo-case-study.html" class="footer-link">Heathtech</a>
                         </nav>
                     </div>
 
@@ -1108,6 +1123,22 @@
             </div>
 
         </footer>
+
+    <!-- Scroll-in Observer (match index) -->
+    <script>
+      (function(){
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('[data-scroll]').forEach((el) => observer.observe(el));
+      })();
+    </script>
         <!-- Footer -->
         <footer class="light bg-theme-primary px-8 py-6 flex items-center justify-between animate-slide-up" style="animation-delay: 1.2s;">
             <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">

@@ -224,6 +224,11 @@
             .cs-card-wrap { max-width: 800px !important; }
         }
 
+        /* Wide screens: ensure hero tiles (Fast / Focused / Clear) are 500px tall */
+        @media (min-width: 1500px) {
+            .tile { height: 500px !important; }
+        }
+
         /* Responsive: About section vertical layout under 900px */
         @media (max-width: 900px) {
             .about-section .about-top { flex-direction: column !important; }
@@ -357,6 +362,12 @@
             transform: translateY(0);
         }
 
+        /* FAB: hidden by default, revealed after initial animations */
+        .fab-hidden { opacity: 0; transform: translateY(16px); }
+        .fab-show { opacity: 1; transform: translateY(0); transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        /* FAB hide when footer visible */
+        .fab-hide { opacity: 0; transform: translateY(16px); transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: none; }
+
         /* Update icon styles */
         .sun-icon, .moon-icon {
             font-size: 16px;
@@ -460,7 +471,7 @@
             will-change: auto !important;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             /* Show mobile nav, hide desktop nav */
             .desktop-menu { display: none !important; }
             .mobile-menu { display: flex !important; padding-left: 16px !important; padding-right: 0 !important; }
@@ -513,8 +524,8 @@
     /* Remove 1px flex gap that shows as a right stripe on small screens */
     section.bg-theme-inverse {
         gap: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
     }
     /* Ensure card wrappers span full width on mobile */
     .w-full.max-w-\[792px\] { max-width: 100% !important; }
@@ -646,30 +657,31 @@
             footer.footer-figma .gap-32 { gap: 1.5rem !important; }
             /* Increase top padding for right link columns */
             #vp-footer-container > .grid { padding-top: 40px !important; }
+            /* Mobile nav: remove right padding across pages */
+            .mobile-menu { padding-right: 0 !important; }
         }
 
         /* Global horizontal spacing rules for <= 750px */
         @media (max-width: 750px) {
             /* Override Tailwind paddings used for horizontal page gutters */
             .px-8 {
-                padding-left: 24px !important;
-                padding-right: 24px !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
             }
             .p-8 {
                 /* Keep vertical padding from Tailwind; only reduce horizontal */
-                padding-left: 24px !important;
-                padding-right: 24px !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
             }
-            .pl-8 { padding-left: 24px !important; }
-            .pr-8 { padding-right: 24px !important; }
+            .pl-8 { padding-left: 16px !important; }
+            .pr-8 { padding-right: 16px !important; }
 
             /* Footer adjustments: icon-only theme toggle and no back-to-top */
             footer .scroll-button { display: none !important; }
             .theme-toggle .theme-text { display: none !important; }
             .theme-toggle { gap: 0 !important; }
-
-            /* Keep wrapper 1px padding on mobile to preserve outer border */
         }
+
 
         /* Footer buttons: stack vertically and fill width on very small screens */
         @media (max-width: 450px) {
@@ -696,7 +708,7 @@
     </style>
 </head>
 <body class="bg-theme-primary">
-    <div class="min-h-screen bg-theme-inverse p-[1px] flex flex-col gap-[1px] mx-auto">
+    <div class="min-h-screen bg-theme-inverse p-[1px] flex flex-col gap-[1px] mx-auto max-w-[1920px] w-full">
         <!-- Navigation -->
         <!-- Desktop Navigation -->
         <nav class="desktop-menu bg-theme-primary h-[82px] flex items-center justify-between pl-8 animate-slide-up nav-animation">
@@ -705,6 +717,43 @@
                 <a href="mailto:iamlauraledesna@gmail.com" class="menu-item h-[82px] w-[167px] flex items-center px-4 border-l border-theme">
                     <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Email</span>
                 </a>
+                <a href="archive.html" class="menu-item h-[82px] w-[167px] flex items-center px-4 border-l border-theme">
+                    <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Archive</span>
+                </a>
+
+        <script>
+          // Reveal FAB after initial animations finish (run after DOM is ready)
+          window.addEventListener('DOMContentLoaded', function () {
+            const fab = document.getElementById('home-fab');
+            if (!fab) return;
+            const target = document.querySelector('.case-study-animation');
+            const reveal = () => { fab.classList.add('fab-show'); fab.classList.remove('fab-hidden'); };
+            let revealed = false;
+            if (target) {
+              target.addEventListener('animationend', () => { if (!revealed) { revealed = true; reveal(); } }, { once: true });
+            }
+            // Fallback in case animationend doesn't fire
+            setTimeout(() => { if (!revealed) reveal(); }, 1500);
+
+            // Hide FAB when footer enters viewport
+            const footer = document.querySelector('footer.footer-figma');
+            if (footer && 'IntersectionObserver' in window) {
+              const io = new IntersectionObserver((entries) => {
+                for (const entry of entries) {
+                  if (entry.isIntersecting) {
+                    fab.classList.add('fab-hide');
+                  } else {
+                    // Only show again if it had been revealed once
+                    if (fab.classList.contains('fab-show')) {
+                      fab.classList.remove('fab-hide');
+                    }
+                  }
+                }
+              }, { threshold: 0.1 });
+              io.observe(footer);
+            }
+          });
+        </script>
                 <a href="assets/cv-laura-ledesna.pdf" download target="_blank" class="menu-item h-[82px] w-[167px] flex items-center px-4 border-l border-theme">
                     <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Resume</span>
                 </a>
@@ -734,6 +783,9 @@
             <div class="overlay-content">
                 <a href="index.html" class="menu-item">
                     <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Home</span>
+                </a>
+                <a href="archive.html" class="menu-item">
+                    <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Archive</span>
                 </a>
                 <a href="mailto:iamlauraledesna@gmail.com" class="menu-item">
                     <span class="font-syne font-normal text-[16px] leading-[1.6] text-theme-heading">Email</span>
@@ -831,7 +883,7 @@
                                 </video>
                             </div>
                             <div class="flex-1 flex flex-col justify-between">
-                            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">MVP • Automation with AI • Zero UI Design</div>
+                            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Product Strategist • AI • Zero UI Design</div>
                             <div class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">AI Research, Before You Even Ask</div>
                             <div class="flex justify-end">
                                 <div class="relative shrink-0 size-8">
@@ -856,7 +908,7 @@
                                 </video>
                             </div>
                             <div class="flex-1 flex flex-col justify-between">
-                                <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Design Leadership • 0 - 1 • Cost Saving • High Complexity</div>
+                                <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Senior UX Designer • Fintech • 0-1</div>
                                 <div class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">Inclusive Finance, Powered by Design</div>
                                 <div class="flex justify-end">
                                     <div class="relative shrink-0 size-8">
@@ -875,13 +927,13 @@
                     <a href="medigo-case-study.html" class="block">
                         <div class="case-study-card border border-theme p-2 flex gap-4 h-[299px] group">
                             <div class="flex-1 relative">
-                                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('assets/medigo-case-study/media-17.png')"></div>
+                                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('assets/medigo-case-study/media-20.png')"></div>
                                 <video class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100" autoplay muted loop playsinline>
-                                    <source src="assets/medigo-case-study/media-18.mp4" type="video/mp4">
+                                    <source src="assets/medigo-case-study/media-19.mp4" type="video/mp4">
                                 </video>
                             </div>
                             <div class="flex-1 flex flex-col justify-between">
-                            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">AI-Driven Personalization • Leading Multi-Stakeholder Collaboration • Atomic Research Model</div>
+                            <div class="font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">Lead UX Designer • Healthtech • AI Driven</div>
                             <div class="font-syne font-medium text-[24px] leading-[1.4] text-theme-heading">When Doctors Said No to AI</div>
                             <div class="flex justify-end">
                                 <div class="relative shrink-0 size-8">
@@ -898,32 +950,37 @@
         </section>
 
         <!-- About Section (from Figma) -->
-        <section class="about-section bg-[#3871EF] box-border flex flex-col gap-8 items-start justify-start px-8 pt-8 pb-16 relative w-full" data-node-id="230:909">
+        <section class="about-section bg-[#000000] box-border flex flex-col gap-8 items-start justify-start px-8 pt-8 pb-16 relative w-full" data-node-id="230:909" style="background-color:#000000 !important;">
             <!-- Top container: heading/paragraph and image -->
             <div class="about-top flex w-full gap-8 items-start justify-start scroll-animate" data-scroll>
-                <div class="basis-0 grow min-h-px min-w-px relative border-t border-black">
-                    <div class="flex flex-col gap-8 overflow-clip px-0 py-2 w-full">
+                <div class="basis-0 grow min-h-px min-w-px relative">
+                    <div class="flex flex-col gap-8 overflow-clip px-0 pb-2 w-full">
                         <div class="about-row flex w-full gap-[128px] items-start justify-start leading-[0] not-italic">
-                            <div class="about-title basis-0 grow min-h-px min-w-px text-[48px] font-syne font-medium text-black">
+                            <div class="about-title basis-0 grow min-h-px min-w-px text-[48px] font-syne font-medium text-[#FFFFFF]">
                                 <p class="leading-[1.4]">About</p>
                             </div>
-                            <div class="basis-0 grow min-h-px min-w-px text-[16px] font-syne font-normal text-[#0d0d0d]">
-                                <p class="leading-[1.6]">With over 8 years of experience in UX and UI design, I specialize in creating scalable systems that leverage AI to deliver smarter, more intuitive products. My background spans industries from healthcare to fintech, where I’ve built tools that inspire trust and make a lasting impact.</p>
+                            <div class="basis-0 grow min-h-px min-w-px text-[16px] font-syne font-normal text-[#FFFFFF]">
+                                <p class="leading-[1.6]">I design products, yes.
+                                    But what I really design are systems that never forget there’s a real person on the other side of the screen.
+                                    I was born in Colombia and now live in Harlem, NYC. I didn’t just migrate geographically, I also shifted professionally: from visual design to research-driven strategy, and more recently, into applied AI integration.
+                                    <br>
+                                    <br>
+                                    Along the way, I’ve led projects in healthcare, government, finance, and education across both Latin America and the U.S.</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="about-image bg-center bg-cover bg-no-repeat h-[341px] w-[358px] shrink-0" style="background-image: url('assets/profile-img.jpeg');"></div>
+                <div class="about-image bg-center bg-cover bg-no-repeat h-[341px] w-[358px] shrink-0" style="background-image: url('assets/profile-img.png');"></div>
             </div>
 
             <!-- Row 1 -->
-            <div class="relative w-full border-t border-black scroll-animate" data-scroll>
-                <div class="flex flex-col gap-8 overflow-clip px-0 py-2 w-full">
+            <div class="relative w-full border-t border-[#333333] scroll-animate" data-scroll>
+                <div class="flex flex-col gap-8 overflow-clip px-0 pt-6 pb-2 w-full">
                     <div class="about-row flex w-full gap-[128px] items-start justify-start leading-[0] not-italic text-[16px]">
-                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-black">
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-[#FFFFFF]">
                             <p class="leading-[1.6]">Part of the international book Conscious UX:</p>
                         </div>
-                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#0d0d0d]">
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#FFFFFF]">
                             <p class="leading-[1.6]">Selected among 130 industry experts, including Don Norman and Brenda Laurel, for a global compendium on conscious design.</p>
                         </div>
                     </div>
@@ -931,13 +988,13 @@
             </div>
 
             <!-- Row 2 -->
-            <div class="relative w-full border-t border-black scroll-animate" data-scroll>
-                <div class="flex flex-col gap-8 overflow-clip px-0 py-2 w-full">
+            <div class="relative w-full border-t border-[#333333] scroll-animate" data-scroll>
+                <div class="flex flex-col gap-8 overflow-clip px-0 pt-6 pb-2 w-full">
                     <div class="about-row flex w-full gap-[128px] items-start justify-start leading-[0] not-italic text-[16px]">
-                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-black">
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-[#FFFFFF]">
                             <p class="leading-[1.6]">Winning identity for political campaign in NYC:</p>
                         </div>
-                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#0d0d0d]">
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#FFFFFF]">
                             <p class="leading-[1.6]">Designed the visual identity and campaign materials for Justin Sanchez, Democratic and WFP candidate, who was elected as City Council Member for New York’s 17th District.</p>
                         </div>
                     </div>
@@ -945,13 +1002,13 @@
             </div>
 
             <!-- Row 3 -->
-            <div class="relative w-full border-t border-black scroll-animate" data-scroll>
-                <div class="flex flex-col gap-8 overflow-clip px-0 py-2 w-full">
+            <div class="relative w-full border-t border-[#333333] scroll-animate" data-scroll>
+                <div class="flex flex-col gap-8 overflow-clip px-0 pt-6 pb-2 w-full">
                     <div class="about-row flex w-full gap-[128px] items-start justify-start leading-[0] not-italic text-[16px]">
-                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-black">
-                            <p class="leading-[1.6]">National educational strategy with the Ministry of Education and the Presidency of Colombia:</p>
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-[#FFFFFF]">
+                            <p class="leading-[1.6]">National education strategy with Colombia’s Presidency:</p>
                         </div>
-                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#0d0d0d]">
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#FFFFFF]">
                             <p class="leading-[1.6]">Co-creator of Profe en tu casa, a TV and radio program that ensured access to education during the lockdown. Recognized across Latin America for its inclusive and connectivity-focused approach.</p>
                         </div>
                     </div>
@@ -959,13 +1016,13 @@
             </div>
 
             <!-- Row 4 -->
-            <div class="relative w-full border-t border-black scroll-animate" data-scroll>
-                <div class="flex flex-col gap-8 overflow-clip px-0 py-2 w-full">
+            <div class="relative w-full border-t border-[#333333] scroll-animate" data-scroll>
+                <div class="flex flex-col gap-8 overflow-clip px-0 pt-6 pb-2 w-full">
                     <div class="about-row flex w-full gap-[128px] items-start justify-start leading-[0] not-italic text-[16px]">
-                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-black">
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-bold text-[#FFFFFF]">
                             <p class="leading-[1.6]">Mentor at ADPList:</p>
                         </div>
-                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#0d0d0d]">
+                        <div class="basis-0 grow min-h-px min-w-px font-syne font-normal text-[#FFFFFF]">
                             <p class="leading-[1.6]">Provide free 1:1 mentorship to designers worldwide through Amazing Design People List, focusing on UX, AI applied to design, and research.</p>
                         </div>
                     </div>
@@ -973,15 +1030,32 @@
             </div>
         </section>
 
+        <!-- Home FAB: Book a call (matches Figma-selected button) -->
+        <a
+          id="home-fab"
+          href="https://calendly.com/iamlauraledesna/new-meeting?month=2025-08"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Book a call"
+          class="fixed z-[1000] bg-white text-black box-border flex gap-2.5 items-center justify-center pl-1 pr-2 py-1 whitespace-nowrap group cursor-pointer transition-all duration-150 ease-out fab-hidden"
+          style="right: calc(16px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom));"
+        >
+          <span class="bg-center bg-cover bg-no-repeat h-[35.243px] w-[37px] shrink-0" style="background-image: url('assets/profile-img.jpeg');"></span>
+          <span class="font-syne font-bold not-italic text-[16px] leading-[1.6] pr-0 group-hover:pr-0">Book a call</span>
+          <span class="relative shrink-0 h-6 w-0 overflow-hidden opacity-0 translate-x-2 transition-all duration-150 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-hover:w-6">
+            <i class="ph ph-arrow-up-right block w-6 h-6 text-black text-[24px] leading-none" aria-hidden="true"></i>
+          </span>
+        </a>
+
         <!-- Footer -->
         <footer class="light bg-theme-primary px-8 py-12 animate-slide-up footer-figma" style="animation-delay: 1.2s;">
             <div id="vp-footer-container" class="w-full mx-auto flex flex-col lg:flex-row gap-32 items-start justify-between">
                 <!-- Left: Title + Buttons -->
                 <div class="basis-0 grow flex flex-col gap-12">
-                    <h2 id="vp-footer-headline" class="vp-roboto-flex font-syne font-medium text-[48px] leading-[1.4] text-theme-heading footer-headline">
+                    <h2 id="vp-footer-headline" class="font-syne font-medium text-[48px] leading-[1.4] text-theme-heading footer-headline scroll-animate" data-scroll>
                         Every great experience starts with a conversation.
                     </h2>
-                    <div class="flex gap-8 footer-buttons">
+                    <div class="flex gap-8 footer-buttons scroll-animate" data-scroll>
                         <a href="https://calendly.com/iamlauraledesna/new-meeting?month=2025-08" target="_blank" rel="noopener noreferrer" class="book-call bg-white hover:bg-[#f2f2f2] active:bg-[#e6e6e6] transition-colors duration-150 text-black px-6 py-4 font-syne font-medium not-italic text-[16px] leading-[1.6] whitespace-nowrap" aria-label="Book a call">
                             Book a call
                         </a>
@@ -993,26 +1067,27 @@
                 padding-top: 16px;
             ">
                     <!-- Navigation -->
-                    <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-4 scroll-animate" data-scroll>
                         <div class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Navigation</div>
                         <nav class="flex flex-col gap-4 font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
-                            <a href="ai-solution-case-study.html" class="footer-link">AI Solution</a>
-                            <a href="nestbank-case-study.html" class="footer-link">Nestbank</a>
-                            <a href="medigo-case-study.html" class="footer-link">Medigo</a>
+                            <a href="ai-solution-case-study.html" class="footer-link">AI UXOps</a>
+                            <a href="nestbank-case-study.html" class="footer-link">Fintech</a>
+                            <a href="medigo-case-study.html" class="footer-link">Heathtech</a>
                         </nav>
                     </div>
 
                     <!-- More From Me -->
-                    <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-4 scroll-animate" data-scroll>
                         <div class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">More From Me</div>
                         <div class="flex flex-col gap-4 font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
+                            <a href="archive.html" class="footer-link">Archive</a>
                             <a href="https://medium.com/@iamlauraledesna" target="_blank" rel="noopener noreferrer" class="footer-link">Medium Articles</a>
                             <a href="assets/cv-laura-ledesna.pdf" download target="_blank" rel="noopener noreferrer" class="footer-link">Resume</a>
                         </div>
                     </div>
 
                     <!-- Contact Me -->
-                    <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-4 scroll-animate" data-scroll>
                         <div class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Contact Me</div>
                         <div class="flex flex-col gap-4 font-syne font-normal text-[16px] leading-[1.6] text-theme-paragraph">
                             <a href="https://calendly.com/iamlauraledesna/new-meeting?month=2025-08" target="_blank" rel="noopener noreferrer" class="footer-link">Book a Call</a>
@@ -1295,7 +1370,7 @@
       (function(){
         const container = document.getElementById('vp-footer-container');
         const headline = document.getElementById('vp-footer-headline');
-        if (!container || !headline) return;
+        return; // disabled footer hover effect on headline
 
         const label = (headline.textContent || '').trim();
         if (!label) return;
