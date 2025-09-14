@@ -1064,8 +1064,7 @@
 
                 <!-- Right: Link columns -->
                 <div class="basis-0 grow grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16 w-full " style="
-                padding-top: 16px;
-            ">
+                padding-top: 16px;">
                     <!-- Navigation -->
                     <div class="flex flex-col gap-4 scroll-animate" data-scroll>
                         <div class="font-syne font-bold text-[16px] leading-[1.6] text-theme-heading">Navigation</div>
@@ -1257,23 +1256,7 @@
     </script>
 
     <script>
-      // Avoid jumping to top when triggering external handlers like mailto
-      let __skipScrollResetOnLeave = false;
-      document.addEventListener('click', function (e) {
-        const a = e.target && e.target.closest ? e.target.closest('a[href^="mailto:"]') : null;
-        if (a) {
-          __skipScrollResetOnLeave = true;
-          // Reset the flag shortly after to avoid affecting future navigations
-          setTimeout(() => { __skipScrollResetOnLeave = false; }, 1500);
-        }
-      }, true);
-
-      window.addEventListener('beforeunload', function () {
-        if (!__skipScrollResetOnLeave) {
-          window.scrollTo(0, 0);
-        }
-      });
-      // Also handle normal loads and bfcache restores
+      // Ensure each page starts at the top on initial load or bfcache restore
       if ('scrollRestoration' in history) {
         history.scrollRestoration = 'manual';
       }

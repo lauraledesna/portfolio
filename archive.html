@@ -713,7 +713,13 @@
           if (pointerTypeRef.current === 'touch') event.preventDefault();
           const dxTotal = event.clientX - startPosRef.current.x;
           const dyTotal = event.clientY - startPosRef.current.y;
-          if (!movedRef.current) { const dist2 = dxTotal*dxTotal + dyTotal*dyTotal; if (dist2 > 16) movedRef.current = true; }
+          // On mobile (<=900px), increase the movement deadzone before considering it a drag
+          if (!movedRef.current) {
+            const dist2 = dxTotal*dxTotal + dyTotal*dyTotal;
+            const isMobile = window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
+            const deadzonePx = isMobile ? 9 : 4; // 9px mobile, 4px desktop
+            if (dist2 > deadzonePx * deadzonePx) movedRef.current = true;
+          }
           const nextX = clamp(startRotRef.current.x - dyTotal / dragSensitivity, -maxVerticalRotationDeg, maxVerticalRotationDeg);
           const nextY = startRotRef.current.y + dxTotal / dragSensitivity;
           const cur = rotationRef.current; if (cur.x !== nextX || cur.y !== nextY) { rotationRef.current = { x: nextX, y: nextY }; applyTransform(nextX, nextY); }
@@ -725,7 +731,10 @@
           let isTap = false;
           if (startPosRef.current) {
             const dx = event.clientX - startPosRef.current.x; const dy = event.clientY - startPosRef.current.y;
-            const TAP_THRESH_PX = pointerTypeRef.current === 'touch' ? 10 : 6; isTap = (dx*dx + dy*dy) <= TAP_THRESH_PX*TAP_THRESH_PX;
+            const isMobile = window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
+            // On mobile, be stricter: require effectively no movement and a modest tap radius
+            const TAP_THRESH_PX = pointerTypeRef.current === 'touch' ? (isMobile ? 12 : 10) : 6;
+            isTap = !movedRef.current && ((dx*dx + dy*dy) <= TAP_THRESH_PX*TAP_THRESH_PX);
           }
           // Velocity estimate
           let vx = 0, vy = 0;
@@ -795,10 +804,10 @@
         const rawSrc = parent.dataset.src || el.querySelector('img')?.src || ''; const rawAlt = parent.dataset.alt || el.querySelector('img')?.alt || '';
         const img = document.createElement('img'); img.src = rawSrc; img.alt = rawAlt; img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover'; img.style.filter = grayscale ? 'grayscale(1)' : 'none'; overlay.appendChild(img); viewerRef.current.appendChild(overlay);
         const tx0 = tileR.left - frameR.left; const ty0 = tileR.top - frameR.top; const sx0 = tileR.width / frameR.width; const sy0 = tileR.height / frameR.height; overlay.style.transform = `translate(${tx0}px, ${ty0}px) scale(${sx0}, ${sy0})`;
+        const needsTransformAnim = (Math.abs(tx0) > 0.5) || (Math.abs(ty0) > 0.5) || (Math.abs(sx0 - 1) > 0.01) || (Math.abs(sy0 - 1) > 0.01);
         requestAnimationFrame(() => { overlay.style.opacity = '1'; overlay.style.transform = 'translate(0px, 0px) scale(1, 1)'; rootRef.current?.setAttribute('data-enlarging', 'true'); });
         // Always size to natural image aspect ratio (or custom if provided)
-        const onFirstEnd = ev => {
-          if (ev.propertyName !== 'transform') return; overlay.removeEventListener('transitionend', onFirstEnd);
+        const proceedToSizing = () => {
           const prevTransition = overlay.style.transition; overlay.style.transition = 'none';
           let targetW, targetH;
           if (openedImageWidth || openedImageHeight) {
@@ -835,7 +844,13 @@
           const cleanupSecond = () => { overlay.removeEventListener('transitionend', cleanupSecond); overlay.style.transition = prevTransition; };
           overlay.addEventListener('transitionend', cleanupSecond, { once: true });
         };
+        const onFirstEnd = ev => { if (ev.propertyName !== 'transform') return; overlay.removeEventListener('transitionend', onFirstEnd); clearTimeout(fallbackTimer); proceedToSizing(); };
+        const fallbackTimer = setTimeout(() => { overlay.removeEventListener('transitionend', onFirstEnd); proceedToSizing(); }, enlargeTransitionMs + 60);
         overlay.addEventListener('transitionend', onFirstEnd);
+        if (!needsTransformAnim) {
+          // If there was effectively no transform change (common on very small screens), proceed after a tick
+          setTimeout(() => { overlay.removeEventListener('transitionend', onFirstEnd); clearTimeout(fallbackTimer); proceedToSizing(); }, 20);
+        }
       };
 
       useEffect(() => { return () => { document.body.classList.remove('dg-scroll-lock'); }; }, []);
@@ -861,7 +876,7 @@
                 <div ref={sphereRef} className="sphere">
                   {items.map((it, i) => (
                     <div key={`${it.x},${it.y},${i}`} className="sphere-item absolute m-auto" data-src={it.src} data-alt={it.alt} data-offset-x={it.x} data-offset-y={it.y} data-size-x={it.sizeX} data-size-y={it.sizeY} style={{ ['--offset-x']: it.x, ['--offset-y']: it.y, ['--item-size-x']: it.sizeX, ['--item-size-y']: it.sizeY, top: '-999px', bottom: '-999px', left: '-999px', right: '-999px' }}>
-                      <div className="item__image absolute block overflow-hidden cursor-pointer bg-gray-200 transition-transform duration-300" role="button" tabIndex={0} aria-label={it.alt || 'Open image'} onClick={e => { if (performance.now() - lastDragEndAt.current < 80) return; openItemFromElement(e.currentTarget); }} onTouchEnd={e => { if (performance.now() - lastDragEndAt.current < 80) return; openItemFromElement(e.currentTarget); }} style={{ inset: '10px', borderRadius: `var(--tile-radius, 30px)`, backfaceVisibility: 'hidden' }}>
+                      <div className="item__image absolute block overflow-hidden cursor-pointer bg-gray-200 transition-transform duration-300" role="button" tabIndex={0} aria-label={it.alt || 'Open image'} style={{ inset: '10px', borderRadius: `var(--tile-radius, 30px)`, backfaceVisibility: 'hidden' }}>
                         <img src={it.src} draggable={false} alt={it.alt} className="w-full h-full object-cover pointer-events-none" style={{ backfaceVisibility: 'hidden', filter: `var(--image-filter, grayscale(1))` }} />
                       </div>
                     </div>
