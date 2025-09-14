@@ -754,8 +754,8 @@
               }
             }
           }
-          // If we have horizontal intent or still undecided (minor movements), handle dome rotate
-          if (pointerTypeRef.current === 'touch' && gestureModeRef.current !== 'vertical') event.preventDefault();
+          // Only prevent page scroll on explicit horizontal intent
+          if (pointerTypeRef.current === 'touch' && gestureModeRef.current === 'horizontal') event.preventDefault();
           // On mobile (<=900px), increase the movement deadzone before considering it a drag
           if (!movedRef.current) {
             const dist2 = dxTotal*dxTotal + dyTotal*dyTotal;
@@ -763,9 +763,14 @@
             const deadzonePx = isMobile ? 9 : 4; // 9px mobile, 4px desktop
             if (dist2 > deadzonePx * deadzonePx) movedRef.current = true;
           }
+          // If not horizontal intent yet, don't rotate
+          if (gestureModeRef.current !== 'horizontal') {
+            lastMove = { x: event.clientX, y: event.clientY, t: performance.now() };
+            return;
+          }
           // Increase dome sensitivity on very small screens (<=600px): lower effective drag sensitivity
-          const isVerySmall = window.matchMedia && window.matchMedia('(max-width: 600px)').matches;
-          const effSensitivity = isVerySmall ? (dragSensitivity * 0.6) : dragSensitivity; // ~66% more responsive under 600px
+          const verySmall = window.matchMedia && window.matchMedia('(max-width: 600px)').matches;
+          const effSensitivity = verySmall ? (dragSensitivity * 0.6) : dragSensitivity; // ~66% more responsive under 600px
           const nextX = clamp(startRotRef.current.x - dyTotal / effSensitivity, -maxVerticalRotationDeg, maxVerticalRotationDeg);
           const nextY = startRotRef.current.y + dxTotal / effSensitivity;
           const cur = rotationRef.current; if (cur.x !== nextX || cur.y !== nextY) { rotationRef.current = { x: nextX, y: nextY }; applyTransform(nextX, nextY); }
