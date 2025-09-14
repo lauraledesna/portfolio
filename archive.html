@@ -611,16 +611,31 @@
       const lastDragEndAt = useRef(0);
 
       const scrollLockedRef = useRef(false);
+      const scrollYRef = useRef(0);
       const lockScroll = useCallback(() => {
         if (scrollLockedRef.current) return;
         scrollLockedRef.current = true;
+        scrollYRef.current = window.scrollY || window.pageYOffset || 0;
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollYRef.current}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
         document.body.classList.add('dg-scroll-lock');
       }, []);
       const unlockScroll = useCallback(() => {
         if (!scrollLockedRef.current) return;
         if (rootRef.current?.getAttribute('data-enlarging') === 'true') return;
         scrollLockedRef.current = false;
+        document.documentElement.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
         document.body.classList.remove('dg-scroll-lock');
+        window.scrollTo(0, scrollYRef.current || 0);
       }, []);
 
       const items = useMemo(() => buildItems(images, segments), [images, segments]);
@@ -695,10 +710,11 @@
       // Native pointer gesture handling (no external dependency)
       useEffect(() => {
         const el = mainRef.current; if (!el) return;
+        const blockTouchMove = (e) => { if (draggingRef.current) { e.preventDefault(); } };
         const onPointerDown = (event) => {
           stopInertia();
           pointerTypeRef.current = event.pointerType || 'mouse';
-          if (pointerTypeRef.current === 'touch') { event.preventDefault(); lockScroll(); }
+          if (pointerTypeRef.current === 'touch') { event.preventDefault(); lockScroll(); window.addEventListener('touchmove', blockTouchMove, { passive: false }); }
           draggingRef.current = true; cancelTapRef.current = false; movedRef.current = false;
           startRotRef.current = { ...rotationRef.current };
           startPosRef.current = { x: event.clientX, y: event.clientY, t: performance.now() };
@@ -727,6 +743,7 @@
         };
         const onPointerUp = (event) => {
           window.removeEventListener('pointermove', onPointerMove);
+          window.removeEventListener('touchmove', blockTouchMove);
           draggingRef.current = false;
           let isTap = false;
           if (startPosRef.current) {
@@ -754,7 +771,7 @@
           startPosRef.current = null;
         };
         el.addEventListener('pointerdown', onPointerDown, { passive: false });
-        return () => { el.removeEventListener('pointerdown', onPointerDown); window.removeEventListener('pointermove', onPointerMove); };
+        return () => { el.removeEventListener('pointerdown', onPointerDown); window.removeEventListener('pointermove', onPointerMove); window.removeEventListener('touchmove', blockTouchMove); };
       }, [dragSensitivity, maxVerticalRotationDeg, lockScroll, unlockScroll, startInertia, applyTransform]);
 
       useEffect(() => {
@@ -859,6 +876,7 @@
         .sphere-root { --radius: 520px; --viewer-pad: 72px; --circ: calc(var(--radius) * 3.14); --rot-y: calc((360deg / var(--segments-x)) / 2); --rot-x: calc((360deg / var(--segments-y)) / 2); --item-width: calc(var(--circ) / var(--segments-x)); --item-height: calc(var(--circ) / var(--segments-y)); }
         .sphere-root * { box-sizing: border-box; }
         .sphere, .sphere-item, .item__image { transform-style: preserve-3d; }
+        .sphere-root, .sphere-root .stage, .sphere-root main { overscroll-behavior: contain; }
         .stage { width: 100%; height: 100%; display: grid; place-items: center; position: absolute; inset: 0; margin: auto; perspective: calc(var(--radius) * 2); perspective-origin: 50% 50%; }
         .sphere { transform: translateZ(calc(var(--radius) * -1)); will-change: transform; position: absolute; }
         .sphere-item { width: calc(var(--item-width) * var(--item-size-x)); height: calc(var(--item-height) * var(--item-size-y)); position: absolute; top: -999px; bottom: -999px; left: -999px; right: -999px; margin: auto; transform-origin: 50% 50%; backface-visibility: hidden; transition: transform 300ms; transform: rotateY(calc(var(--rot-y) * (var(--offset-x) + ((var(--item-size-x) - 1) / 2)) + var(--rot-y-delta, 0deg))) rotateX(calc(var(--rot-x) * (var(--offset-y) - ((var(--item-size-y) - 1) / 2)) + var(--rot-x-delta, 0deg))) translateZ(var(--radius)); }
