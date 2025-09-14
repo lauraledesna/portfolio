@@ -711,13 +711,15 @@
       useEffect(() => {
         const el = mainRef.current; if (!el) return;
         const blockTouchMove = (e) => { if (draggingRef.current) { e.preventDefault(); } };
+        const gestureModeRef = { current: 'undecided' }; // 'undecided' | 'horizontal' | 'vertical'
         const onPointerDown = (event) => {
           stopInertia();
           pointerTypeRef.current = event.pointerType || 'mouse';
-          if (pointerTypeRef.current === 'touch') { event.preventDefault(); lockScroll(); window.addEventListener('touchmove', blockTouchMove, { passive: false }); }
+          // Do not lock or prevent default yet; wait until we detect a horizontal intent
           draggingRef.current = true; cancelTapRef.current = false; movedRef.current = false;
           startRotRef.current = { ...rotationRef.current };
           startPosRef.current = { x: event.clientX, y: event.clientY, t: performance.now() };
+          gestureModeRef.current = 'undecided';
           const potential = event.target.closest?.('.item__image');
           tapTargetRef.current = potential || null;
           window.addEventListener('pointermove', onPointerMove, { passive: false });
@@ -726,9 +728,34 @@
         let lastMove = { x: 0, y: 0, t: 0 };
         const onPointerMove = (event) => {
           if (!draggingRef.current || !startPosRef.current || focusedElRef.current) return;
-          if (pointerTypeRef.current === 'touch') event.preventDefault();
           const dxTotal = event.clientX - startPosRef.current.x;
           const dyTotal = event.clientY - startPosRef.current.y;
+          // Decide gesture direction once beyond a small deadzone
+          if (gestureModeRef.current === 'undecided') {
+            const isMobile = window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
+            const deadzonePx = isMobile ? 9 : 4;
+            const absDx = Math.abs(dxTotal), absDy = Math.abs(dyTotal);
+            if (absDx*absDx + absDy*absDy > deadzonePx*deadzonePx) {
+              if (absDx > absDy * 1.2) {
+                gestureModeRef.current = 'horizontal';
+                if (pointerTypeRef.current === 'touch') {
+                  event.preventDefault();
+                  lockScroll();
+                  window.addEventListener('touchmove', blockTouchMove, { passive: false });
+                }
+              } else if (absDy > absDx * 1.2) {
+                // Vertical intent: cancel drag and let page scroll naturally
+                gestureModeRef.current = 'vertical';
+                window.removeEventListener('pointermove', onPointerMove);
+                window.removeEventListener('pointerup', onPointerUp);
+                draggingRef.current = false;
+                tapTargetRef.current = null;
+                return;
+              }
+            }
+          }
+          // If we have horizontal intent or still undecided (minor movements), handle dome rotate
+          if (pointerTypeRef.current === 'touch' && gestureModeRef.current !== 'vertical') event.preventDefault();
           // On mobile (<=900px), increase the movement deadzone before considering it a drag
           if (!movedRef.current) {
             const dist2 = dxTotal*dxTotal + dyTotal*dyTotal;
@@ -736,8 +763,11 @@
             const deadzonePx = isMobile ? 9 : 4; // 9px mobile, 4px desktop
             if (dist2 > deadzonePx * deadzonePx) movedRef.current = true;
           }
-          const nextX = clamp(startRotRef.current.x - dyTotal / dragSensitivity, -maxVerticalRotationDeg, maxVerticalRotationDeg);
-          const nextY = startRotRef.current.y + dxTotal / dragSensitivity;
+          // Increase dome sensitivity on very small screens (<=600px): lower effective drag sensitivity
+          const isVerySmall = window.matchMedia && window.matchMedia('(max-width: 600px)').matches;
+          const effSensitivity = isVerySmall ? (dragSensitivity * 0.6) : dragSensitivity; // ~66% more responsive under 600px
+          const nextX = clamp(startRotRef.current.x - dyTotal / effSensitivity, -maxVerticalRotationDeg, maxVerticalRotationDeg);
+          const nextY = startRotRef.current.y + dxTotal / effSensitivity;
           const cur = rotationRef.current; if (cur.x !== nextX || cur.y !== nextY) { rotationRef.current = { x: nextX, y: nextY }; applyTransform(nextX, nextY); }
           lastMove = { x: event.clientX, y: event.clientY, t: performance.now() };
         };
@@ -876,7 +906,6 @@
         .sphere-root { --radius: 520px; --viewer-pad: 72px; --circ: calc(var(--radius) * 3.14); --rot-y: calc((360deg / var(--segments-x)) / 2); --rot-x: calc((360deg / var(--segments-y)) / 2); --item-width: calc(var(--circ) / var(--segments-x)); --item-height: calc(var(--circ) / var(--segments-y)); }
         .sphere-root * { box-sizing: border-box; }
         .sphere, .sphere-item, .item__image { transform-style: preserve-3d; }
-        .sphere-root, .sphere-root .stage, .sphere-root main { overscroll-behavior: contain; }
         .stage { width: 100%; height: 100%; display: grid; place-items: center; position: absolute; inset: 0; margin: auto; perspective: calc(var(--radius) * 2); perspective-origin: 50% 50%; }
         .sphere { transform: translateZ(calc(var(--radius) * -1)); will-change: transform; position: absolute; }
         .sphere-item { width: calc(var(--item-width) * var(--item-size-x)); height: calc(var(--item-height) * var(--item-size-y)); position: absolute; top: -999px; bottom: -999px; left: -999px; right: -999px; margin: auto; transform-origin: 50% 50%; backface-visibility: hidden; transition: transform 300ms; transform: rotateY(calc(var(--rot-y) * (var(--offset-x) + ((var(--item-size-x) - 1) / 2)) + var(--rot-y-delta, 0deg))) rotateX(calc(var(--rot-x) * (var(--offset-y) - ((var(--item-size-y) - 1) / 2)) + var(--rot-x-delta, 0deg))) translateZ(var(--radius)); }
